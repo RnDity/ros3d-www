@@ -1,6 +1,6 @@
 import tornado.ioloop
 import tornado.web
-from tornado.escape import json_encode
+from tornado.escape import json_encode, json_decode
 
 settings = {
         'opacity': 90,
@@ -32,12 +32,26 @@ class SettingsHandler(tornado.web.RequestHandler):
     def get(self):
         print("SettingsHandler: %s" % json_encode(settings))
         self.write("%s" % json_encode(settings))
+    def post(self):
+        temp = json_decode(self.request.body)
+        temp2 = {}
+        for key in temp:
+            print("key: %s, value: %s" % (key, temp[key]))
+            settings[key] = temp[key]
+            print("sett: %s" % settings[key])
+            temp2[key] = settings[key]
+        self.write("%s" % json_encode(temp2))            
 
 class SettingHandler(tornado.web.RequestHandler):        
     def get(self, id):
         print("SettingHandler: %s : %s" % (id, json_encode(settings[id])))
         temp = { id : settings[id] }
         self.write("%s" % json_encode(temp))
+    def post(self, id):
+        temp = json_decode(self.request.body)
+        settings[id] = temp[id]
+        print("SettingHandler post: %s: %s" % (id, json_encode(settings[id])))
+        self.write(json_encode({id : settings[id]}))
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
