@@ -101,15 +101,19 @@ class CameraHandler(tornado.web.RequestHandler):
         self.write("%s" % json_encode(camera[int(id)]))
 
 class ServoHandler(tornado.web.RequestHandler):
-    def get(self,id):
+    def get(self, id, comm):
         if (not id) or ( id == "/"):
             print ("ServoHandler no id")
-            self.write("ServoHandler no id")
+            self.write("ServoHandler no id: %s, %s" % (id, comm))
+        elif id and not comm:
+            print("id and not comm")
+            self.write("id and not comm %s, %s" % (id, comm))
+        elif id and comm:
+            print("id and comm")
+            self.write("id and comm %s, %s" % (id, comm))
         else:
-            print("Else")
-            
-
-
+            print("Else id: %s" % id)
+            self.write("ServoHandler id: %s" % id)
 
 
 application = tornado.web.Application([
@@ -118,7 +122,7 @@ application = tornado.web.Application([
     (r"/camera/([0-9]+)", CameraHandler),
     (r"/settings", SettingsHandler),
     (r"/settings/(\w+)", SettingHandler),
-    (r"/servo(/\w+|/|)", ServoHandler),
+    (r"/servo(\/[0-9]+|\/|)(\/\w+|)", ServoHandler),
 ])
 
 if __name__ == "__main__":
