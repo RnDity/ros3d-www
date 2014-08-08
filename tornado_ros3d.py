@@ -104,17 +104,48 @@ class ServoHandler(tornado.web.RequestHandler):
     def get(self, id, comm):
         if (not id) or ( id == "/"):
             print ("ServoHandler no id")
-            self.write("ServoHandler no id: %s, %s" % (id, comm))
+            self.write(json_encode(servo))
         elif id and not comm:
             print("id and not comm")
-            self.write("id and not comm %s, %s" % (id, comm))
+            self.write(json_encode(servo[id1]))
         elif id and comm:
+            id1 = int(id.replace("/",""))
             print("id and comm")
-            self.write("id and comm %s, %s" % (id, comm))
+            if comm == "/range":
+                print("getrange: %s ~ %s" % (servo[id1]['min'], servo[id1]['max']))
+                self.write(json_encode({'min': servo[id1]['min'] ,'max': servo[id1]['max']}))
+            if comm == "/getstatus":
+                print("getstatus: %s" % servo)
+                self.write(json_encode(servo[id1]))
+            if comm == "/position":
+                print("get position: %s" % servo[id1]['position'])
+                self.write(json_encode({'position': servo[id1]['position']}))
         else:
             print("Else id: %s" % id)
-            self.write("ServoHandler id: %s" % id)
-
+    def post(self, id, comm):
+        if (not id) or ( id == "/"):
+            print ("ServoHandler no id")
+            self.write(json_encode(servo))
+        elif id and not comm:
+            id1 = int(id.replace("/",""))
+            print("id and not comm - getstatus")
+            self.write(json_encode(servo[id1]))
+        elif id and comm:
+            print("id and comm")
+            id1 = int(id.replace("/",""))
+            temp = json_decode(self.request.body)
+            temp = {}
+            if comm == "/range":
+                servo[id1]['min'] = temp['min']
+                servo[id1]['max'] = temp['max']
+            else:
+                for key in temp:
+                    servo[id1][key] = temp[key]
+                    temp2[id1][ke] = temp[key]
+                self.write("%s" % json_encode(temp2))
+        else:
+            print("Else id: %s" % id)
+        
 
 application = tornado.web.Application([
     (r"/", MainHandler),
