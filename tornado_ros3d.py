@@ -134,14 +134,14 @@ class ServoHandler(tornado.web.RequestHandler):
             print("id and comm")
             id1 = int(id.replace("/",""))
             temp = json_decode(self.request.body)
-            temp = {}
+            temp2 = {}
             if comm == "/range":
                 servo[id1]['min'] = temp['min']
                 servo[id1]['max'] = temp['max']
             else:
                 for key in temp:
                     servo[id1][key] = temp[key]
-                    temp2[id1][ke] = temp[key]
+                    temp2[key] = temp[key]
                 self.write("%s" % json_encode(temp2))
         else:
             print("Else id: %s" % id)
