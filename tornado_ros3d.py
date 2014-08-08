@@ -22,10 +22,36 @@ settings = {
 }
 
 camera = [
-        {'id': 0, 'name': 'testName0'},
-        {'id': 1, 'name': 'testName1'},
-        {'id': 2, 'name': 'testName2'},
-        {'id': 3, 'name': 'testName3'},
+        {'id': 0, 'name': 'testName0', 'type': 1, 'recordingmode': 1, 'fps': 1 },
+        {'id': 1, 'name': 'testName1', 'type': 2, 'recordingmode': 2, 'fps': 3 },
+]
+
+cameratype = [
+        {'id': 0, 'cameraid': 0, 'name': 'blackmagic1', 'matrixwidthm': 1.5, 'matrixwidthp': 1.2, 'matrixheightm': 1.8, 'matrixheightp': 1.9, 'crop': 1.66, 'type': 1, 'iso': 2},
+        {'id': 1, 'cameraid': 1, 'name': 'blackmagic2', 'matrixwidthm': 1.5, 'matrixwidthp': 1.2, 'matrixheightm': 1.8, 'matrixheightp': 1.9, 'crop': 1.66, 'type': 1, 'iso': 1},
+]
+
+cameraiso = [
+        {'id': 0, 'cameratypeid': 0, 'name': 'iso 100', 'value': 100},
+        {'id': 1, 'cameratypeid': 1, 'name': 'iso 200', 'value': 200},
+]
+
+cameramode = [
+        {'id': 0, 'cameraid': 0, 'name': '5K 2:1 5120x2560'},
+        {'id': 1, 'cameraid': 1, 'name': '5K HD 16:9(4800x2700)'},
+        {'id': 2, 'cameraid': 1, 'name': '4K 2:1 4096x2160'},
+]
+
+camerafps = [
+        {'id': 0, 'cameratypeid': 0, 'name': '25fps', 'value': 25.0},
+        {'id': 1, 'cameratypeid': 0, 'name': '25.99fps', 'value': 25.99},
+        {'id': 2, 'cameratypeid': 1, 'name': '24.99fps', 'value': 24.99},
+        {'id': 3, 'cameratypeid': 1, 'name': '23.99fps', 'value': 23.99},
+]
+
+servo = [
+        {'id': 0, 'position': 3.02, 'max': 200.34, 'min': -100.22},
+        {'id': 1, 'position': -10, 'max': 300.22, 'min': -110.44},
 ]
 
 class SettingsHandler(tornado.web.RequestHandler):
@@ -75,17 +101,24 @@ class CameraHandler(tornado.web.RequestHandler):
         self.write("%s" % json_encode(camera[int(id)]))
 
 class ServoHandler(tornado.web.RequestHandler):
-    def get(self):
-        print ("ServoHandler")
-        self.write("ServoHandler")
+    def get(self,id):
+        if (not id) or ( id == "/"):
+            print ("ServoHandler no id")
+            self.write("ServoHandler no id")
+        else:
+            print("Else")
+            
+
+
+
 
 application = tornado.web.Application([
     (r"/", MainHandler),
     (r"/camera", CamerasHandler),
     (r"/camera/([0-9]+)", CameraHandler),
-    (r"/servo", ServoHandler),
     (r"/settings", SettingsHandler),
     (r"/settings/(\w+)", SettingHandler),
+    (r"/servo(/\w+|/|)", ServoHandler),
 ])
 
 if __name__ == "__main__":
