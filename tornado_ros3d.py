@@ -107,6 +107,7 @@ class ServoHandler(tornado.web.RequestHandler):
             self.write(json_encode(servo))
         elif id and not comm:
             print("id and not comm")
+            id1 = int(id.replace("/",""))
             self.write(json_encode(servo[id1]))
         elif id and comm:
             id1 = int(id.replace("/",""))
@@ -128,8 +129,13 @@ class ServoHandler(tornado.web.RequestHandler):
             self.write(json_encode(servo))
         elif id and not comm:
             id1 = int(id.replace("/",""))
-            print("id and not comm - getstatus")
-            self.write(json_encode(servo[id1]))
+            print("id and not comm: %s, %s" % (id, comm))
+            temp = json_decode(self.request.body)
+            temp2 = {}
+            for key in temp:
+                servo[id1][key] = temp[key]
+                temp2[key] = temp [key]
+            self.write(json_encode(temp2))
         elif id and comm:
             print("id and comm")
             id1 = int(id.replace("/",""))
@@ -142,7 +148,7 @@ class ServoHandler(tornado.web.RequestHandler):
                 for key in temp:
                     servo[id1][key] = temp[key]
                     temp2[key] = temp[key]
-                self.write("%s" % json_encode(temp2))
+                self.write(json_encode(temp2))
         else:
             print("Else id: %s" % id)
         
