@@ -1,6 +1,9 @@
 import tornado.ioloop
 import tornado.web
 from tornado.escape import json_encode, json_decode
+import sys 
+from traceback import print_exc
+import dbus
 
 settings = {
         'opacity': 90,
@@ -54,6 +57,8 @@ servo = [
         {'id': 1, 'position': -10, 'max': 300.22, 'min': -110.44},
 ]
 
+bus = 0
+
 class SettingsHandler(tornado.web.RequestHandler):
     def get(self):
         print("SettingsHandler: %s" % json_encode(settings))
@@ -100,6 +105,25 @@ class CameraHandler(tornado.web.RequestHandler):
         print ("CameraHandler, id: %s, %s" % (id, camera[int(id)]))
         self.write("%s" % json_encode(camera[int(id)]))
 
+class DbusHandler:
+    dbusH = 0
+    iface = 0
+    print("DbusHandler\n")
+    def connect(self, service, object, interface):
+        print("Connect\n")
+        try:
+           dbusH = dbus.SystemBus()
+           remote_object = dbusH.get_object(service, object)
+        except dbus.DBusException:
+            print_exc()
+            sys.exit(1)
+        print("Connect end\n")
+        self.iface = dbus.Interface(remote_object, interface)
+    def getStatus(self):
+        temp = self.iface.GetStatus()
+        print(temp)
+        return temp
+
 class ServoHandler(tornado.web.RequestHandler):
     def get(self, id, comm):
         if (not id) or ( id == "/"):
@@ -117,6 +141,8 @@ class ServoHandler(tornado.web.RequestHandler):
                 self.write(json_encode({'min': servo[id1]['min'] ,'max': servo[id1]['max']}))
             if comm == "/getstatus":
                 print("getstatus: %s" % servo)
+                temp = bus.getStatus()
+                print(temp)
                 self.write(json_encode(servo[id1]))
             if comm == "/position":
                 print("get position: %s" % servo[id1]['position'])
@@ -164,5 +190,7 @@ application = tornado.web.Application([
 
 if __name__ == "__main__":
     application.listen(80)
+    bus = DbusHandler()
+    bus.connect("ros3d.kontroler.Server", "/ros3d/kontroler/Object", "ros3d.kontroler.Interface")
     tornado.ioloop.IOLoop.instance().start()
 
