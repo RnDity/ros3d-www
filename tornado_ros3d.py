@@ -121,34 +121,41 @@ class DbusHandler:
         self.iface = dbus.Interface(remote_object, interface)
     def getStatus(self):
         temp = self.iface.GetStatus()
+        return temp
+    def setRange(self, id, max, min):
+        temp = self.iface.SetRange(json_encode({'id': id, 'min': min ,'max': max}))
+        print(temp)
+        return temp
+    def setPosition(self, id, value):
+        temp = self.iface.SetPosition(json_encode({'id': id, 'position': value }))
+        print(temp)
+        return temp
+    def setParam(self, id, name, value):
+        temp = self.iface.SetParam(json_encode({'id': id, name: value }))
         print(temp)
         return temp
 
 class ServoHandler(tornado.web.RequestHandler):
     def get(self, id, comm):
+        status = json_decode(bus.getStatus())
         if (not id) or ( id == "/"):
             print ("ServoHandler no id")
-            self.write(json_encode(servo))
+            self.write(json_encode(status))
         elif id and not comm:
             print("id and not comm")
             id1 = int(id.replace("/",""))
-            self.write(json_encode(servo[id1]))
+            self.write(json_encode(status[id1]))
         elif id and comm:
             id1 = int(id.replace("/",""))
             print("id and comm")
             if comm == "/range":
-                print("getrange: %s ~ %s" % (servo[id1]['min'], servo[id1]['max']))
-                self.write(json_encode({'min': servo[id1]['min'] ,'max': servo[id1]['max']}))
+                self.write(json_encode({'min': status[id1]['min'] ,'max': status[id1]['max']}))
             if comm == "/getstatus":
-                print("getstatus: %s" % servo)
-                temp = bus.getStatus()
-                print(temp)
-                self.write(json_encode(servo[id1]))
+                self.write(json_encode(status[id1]))
             if comm == "/position":
-                print("get position: %s" % servo[id1]['position'])
-                self.write(json_encode({'position': servo[id1]['position']}))
+                self.write(json_encode({'position': status[id1]['position']}))
         else:
-            print("Else id: %s" % id)
+            print("Else why?? error0001: %s" % id)
     def post(self, id, comm):
         if (not id) or ( id == "/"):
             print ("ServoHandler no id")
@@ -170,6 +177,9 @@ class ServoHandler(tornado.web.RequestHandler):
             if comm == "/range":
                 servo[id1]['min'] = temp['min']
                 servo[id1]['max'] = temp['max']
+                bus.setRange(id1, temp['max'], temp['min'])
+            elif comm == "/position":
+                bus.setPosition(id1, temp['position'])
             else:
                 for key in temp:
                     servo[id1][key] = temp[key]
