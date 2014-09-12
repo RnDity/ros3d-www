@@ -148,17 +148,17 @@ class ServoHandler(tornado.web.RequestHandler):
             self.write(json_encode(status))
         elif id and not comm:
             print("get: id and not comm")
-            id1 = int(id.replace("/",""))
-            self.write(json_encode(status[id1-1]))
+            id1 = int(id.replace("/",""))-1
+            self.write(json_encode(status[id1]))
         elif id and comm:
             id1 = int(id.replace("/",""))
             print("get: id and comm")
             if comm == "/range":
-                self.write(json_encode({'min': status[id1-1]['min'] ,'max': status[id1-1]['max']}))
+                self.write(json_encode({'min': status[id1]['min'] ,'max': status[id1]['max']}))
             if comm == "/getstatus":
-                self.write(json_encode(status[id1-1]))
+                self.write(json_encode(status[id1]))
             if comm == "/position":
-                self.write(json_encode({'position': status[id1-1]['position']}))
+                self.write(json_encode({'position': status[id1]['position']}))
         else:
             print("Else why?? error0001: %s" % id)
     def post(self, id, comm):
@@ -171,7 +171,7 @@ class ServoHandler(tornado.web.RequestHandler):
             temp = json_decode(self.request.body)
             temp2 = {}
             for key in temp:
-                servo[id1][key] = temp[key]
+                servo[id1-1][key] = temp[key]
                 temp2[key] = temp [key]
             self.write(json_encode(temp2))
         elif id and comm:
@@ -180,17 +180,19 @@ class ServoHandler(tornado.web.RequestHandler):
             temp = json_decode(self.request.body)
             temp2 = {}
             if comm == "/range":
-                servo[id1]['min'] = temp['min']
-                servo[id1]['max'] = temp['max']
+                servo[id1-1]['min'] = temp['min']
+                servo[id1-1]['max'] = temp['max']
                 bus.setRange(id1, temp['max'], temp['min'])
-            elif comm == "/position":
-                bus.setPosition(id1, temp['position'])
+		self.write(temp)
+            #elif comm == "/position":
+                #bus.setPosition(id1, temp['position'])
             elif comm == "/moveby":
                 bus.moveBy(id1, temp['moveby'])
-                self.write(json_encode({'status': 'OK'}))
+                self.write(self.request.body)
+		print(self.request.body)
             else:
                 for key in temp:
-                    servo[id1][key] = temp[key]
+                    servo[id1-1][key] = temp[key]
                     temp2[key] = temp[key]
                 self.write(json_encode(temp2))
         else:
