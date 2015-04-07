@@ -22,11 +22,14 @@
 
     <h3>Network</h3>
     <div class="container">
+        {% for itype in network_entries.keys() %}
+        {% if network_entries[itype] %}
         <div class="row">
+            <h4>{{ itype.capitalize() }}</h4>
             <div class="col-md-6">
                 <table class="table">
                     <tbody>
-                        {% for entry in network_entries %}
+                        {% for entry in network_entries[itype] %}
                         <tr>
                             <td class="col-md-6">{{ entry['name'] }}</td>
                             <td>{{ entry['value'] }}</td>
@@ -36,6 +39,8 @@
                 </table>
             </div>
         </div>
+        {% end %}
+        {% end %}
     </div>
     
 </div>

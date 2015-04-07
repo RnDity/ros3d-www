@@ -3,6 +3,7 @@
 #
 
 from __future__ import absolute_import
+from ros3dkrui.system.network import network_provider
 import tornado.web
 import tornado.template
 import logging
@@ -47,6 +48,48 @@ class MainHandler(tornado.web.RequestHandler):
         _log.debug('system uptime: %s', str(uptime))
         return str(uptime)
 
+    def _net(self):
+        data = network_provider().list_interfaces()
+        network_entries = {
+            'wired': [],
+            'wireless': []
+        }
+        # we're intersted in wired and wireless interfaces only
+        for itype in network_entries.keys():
+            if itype not in data:
+                _log.debug('interface type %s not in available interfaces',
+                           itype)
+                continue
+
+            entry = network_entries[itype]
+            # expecting only one interface
+            if len(data[itype]) > 1:
+                _log.error('more than 1 interface of type %s', itype)
+
+            idata = data[itype][0]
+            _log.debug('interface data: %s', idata)
+            # first interface name
+            entry.append(dict(name='Interface', value=idata['name']))
+            entry.append(dict(name='MAC Address', value=idata['mac']))
+            if idata['online']:
+                entry.append(dict(name='State', value='Up'))
+            else:
+                entry.append(dict(name='State', value='Down'))
+
+            ipv4 = idata.get('ipv4', None)
+            if ipv4:
+                entry.append(dict(name='IPv4 Address', value=ipv4['address']))
+                entry.append(dict(name='IPv4 Mask', value=ipv4['netmask']))
+                entry.append(dict(name='IPv4 Gateway', value=ipv4['gateway']))
+                if ipv4['method'] == 'dhcp':
+                    meth = 'DHCP'
+                else:
+                    method = 'Static'
+                entry.append(dict(name='Address Source', value=meth))
+
+        _log.debug('network entries: %s', network_entries)
+        return network_entries
+
     def get(self):
         _log.debug("get: %r", self.request)
         ldr = self.app.get_template_loader()
@@ -57,11 +100,7 @@ class MainHandler(tornado.web.RequestHandler):
             dict(name='Assigned Rig', value='None')
         ]
         system_entries.append(dict(name='Uptime', value=self._uptime()))
-        network_entries = [
-            dict(name='Connection Type', value='Ethernet'),
-            dict(name='IP Address', value='192.168.0.1'),
-            dict(name='Mask', value='255.255.255.0')
-        ]
+        network_entries = self._net()
 
         self.write(tmpl.generate(system_entries=system_entries,
                                  network_entries=network_entries))
