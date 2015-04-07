@@ -84,6 +84,7 @@ class Application(tornado.web.Application):
         uris = [
             (r"/settings", SettingsHandler),
             (r"/settings/(\w+)", SettingHandler),
+            (r"/status", MainHandler, dict(app=self)),
             (r"/", MainHandler, dict(app=self)),
         ]
 
