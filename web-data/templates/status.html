@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="page-header">
+    <h2>Ros3D Camera Rig Controller</h2>
+</div>
+<div>
+    <h3>System Status</h3>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table">
+                    {% for entry in status_entries %}
+                    <tbody>
+                        <tr>
+                            <td>{{ entry['name'] }}</td>
+                            <td>{{ entry['value'] }}</td>
+                        </tr>
+                    </tbody>
+
+                    {% end %}
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% end %}
