@@ -59,15 +59,19 @@ class MainHandler(tornado.web.RequestHandler):
         ldr = self.app.get_template_loader()
         tmpl = ldr.load('status.html')
 
-        status_entries=[
-            dict(name='IP Address', value='192.168.0.1'),
+        system_entries= [
             dict(name='Hostname', value='ros3d-kr'),
             dict(name='Assigned Rig', value='None')
         ]
-        status_entries.append(dict(name='Uptime', value=self._uptime()))
+        system_entries.append(dict(name='Uptime', value=self._uptime()))
+        network_entries = [
+            dict(name='Connection Type', value='Ethernet'),
+            dict(name='IP Address', value='192.168.0.1'),
+            dict(name='Mask', value='255.255.255.0')
+        ]
 
-        self.write(tmpl.generate(status_entries=status_entries))
-
+        self.write(tmpl.generate(system_entries=system_entries,
+                                 network_entries=network_entries))
 
 
 class Application(tornado.web.Application):
