@@ -54,7 +54,8 @@ class ConnmanProvider(object):
 
             ipv4['address'] = str(props['IPv4']['Address'])
             ipv4['netmask'] = str(props['IPv4']['Netmask'])
-            ipv4['gateway'] = str(props['IPv4']['Gateway'])
+            if 'Gateway' in props['IPv4']:
+                ipv4['gateway'] = str(props['IPv4']['Gateway'])
             ipv4['method'] = str(props['IPv4']['Method'])
 
             iface['ipv4'] = ipv4
