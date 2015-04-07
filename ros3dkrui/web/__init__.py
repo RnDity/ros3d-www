@@ -68,9 +68,6 @@ class MainHandler(tornado.web.RequestHandler):
 
         self.write(tmpl.generate(status_entries=status_entries))
 
-    def post(self):
-        _log.debug("MainHandler: post %s" % (self.request.body))
-        self.write("MainHandler: post body: %s" % (self.request.body))
 
 
 class Application(tornado.web.Application):
