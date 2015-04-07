@@ -68,24 +68,42 @@ class MainHandler(tornado.web.RequestHandler):
 
             idata = data[itype][0]
             _log.debug('interface data: %s', idata)
+
+            ipv4 = idata.get('ipv4', None)
             # first interface name
             entry.append(dict(name='Interface', value=idata['name']))
+            # MAC address comes next
             entry.append(dict(name='MAC Address', value=idata['mac']))
+            # interface status
             if idata['online']:
                 entry.append(dict(name='State', value='Up'))
             else:
-                entry.append(dict(name='State', value='Down'))
+                # may not be online but still usable with local addressing
+                if ipv4 and ipv4['address'].startswith('169.254'):
+                    entry.append(dict(name='State', value='Up/Local'))
+                else:
+                    entry.append(dict(name='State', value='Down'))
 
-            ipv4 = idata.get('ipv4', None)
+            # now fill IPv4 status
             if ipv4:
+                # address first
                 entry.append(dict(name='IPv4 Address', value=ipv4['address']))
+                # network mask
                 entry.append(dict(name='IPv4 Mask', value=ipv4['netmask']))
-                entry.append(dict(name='IPv4 Gateway', value=ipv4['gateway']))
+                # gateway
+                entry.append(dict(name='IPv4 Gateway', value=ipv4.get('gateway', 'Not set')))
+                # IP address source, this can be either DHCP, static,
+                # or auto link-local. The connman provider returns
+                # DHCP when link-local address was configured
                 if ipv4['method'] == 'dhcp':
-                    meth = 'DHCP'
+                    method = 'DHCP'
+                    # override address source for link local addresses
+                    if ipv4['address'].startswith('169.254'):
+                        _log.debug('IP %s like link local address', ipv4['address'])
+                        method = 'Link Local'
                 else:
                     method = 'Static'
-                entry.append(dict(name='Address Source', value=meth))
+                entry.append(dict(name='Address Source', value=method))
 
         _log.debug('network entries: %s', network_entries)
         return network_entries
