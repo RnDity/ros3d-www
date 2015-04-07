@@ -25,16 +25,6 @@ class SettingsHandler(tornado.web.RequestHandler):
             temp2[key] = settings[key]
         self.write("%s" % json_encode(temp2))
 
-class SettingHandler(tornado.web.RequestHandler):
-    def get(self, id):
-        _log.debug("SettingHandler: %s : %s" % (id, json_encode(settings[id])))
-        temp = { id : settings[id] }
-        self.write("%s" % json_encode(temp))
-    def post(self, id):
-        temp = json_decode(self.request.body)
-        settings[id] = temp[id]
-        _log.debug("SettingHandler post: %s: %s" % (id, json_encode(settings[id])))
-        self.write(json_encode({id : settings[id]}))
 
 class MainHandler(tornado.web.RequestHandler):
     def initialize(self, app):
@@ -84,7 +74,6 @@ class Application(tornado.web.Application):
                                         'static')
         uris = [
             (r"/settings", SettingsHandler),
-            (r"/settings/(\w+)", SettingHandler),
             (r"/status", MainHandler, dict(app=self)),
             (r"/", MainHandler, dict(app=self)),
         ]
