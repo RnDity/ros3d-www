@@ -12,6 +12,9 @@ _log = logging.getLogger(__name__)
 
 
 class SettingsHandler(tornado.web.RequestHandler):
+    def initialize(self, app):
+        self.app = app
+
     def get(self):
         _log.debug("SettingsHandler: %s" % json_encode(settings))
         self.write("%s" % json_encode(settings))
@@ -73,7 +76,7 @@ class Application(tornado.web.Application):
         self.static_root = os.path.join(document_root,
                                         'static')
         uris = [
-            (r"/settings", SettingsHandler),
+            (r"/settings", SettingsHandler, dict(app=self)),
             (r"/status", MainHandler, dict(app=self)),
             (r"/", MainHandler, dict(app=self)),
         ]
