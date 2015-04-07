@@ -34,6 +34,13 @@ class ConnmanProvider(object):
         interface_data = {}
         for service in services:
             path, props = service
+            # for key, prop in props.items():
+            #     _log.debug('prop: %s', key)
+            #     if prop is dict:
+            #         _log.debug('entries: %s', prop.keys())
+            #     else:
+            #         _log.debug('value: %s', prop)
+
             _log.info('service path: %s', path)
             _log.debug('props: %s', props.keys())
 
@@ -63,13 +70,6 @@ class ConnmanProvider(object):
                 interface_data[service_type] = []
 
             interface_data[service_type].append(iface)
-
-            # for key, prop in props.items():
-            #     _log.debug('prop: %s', key)
-            #     if prop is dict:
-            #         _log.debug('entries: %s', prop.keys())
-            #     else:
-            #         _log.debug('value: %s', prop)
 
         return interface_data
 
