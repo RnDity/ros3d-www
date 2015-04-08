@@ -17,17 +17,43 @@ class SettingsHandler(tornado.web.RequestHandler):
         self.app = app
 
     def get(self):
-        _log.debug("SettingsHandler: %s" % json_encode(settings))
-        self.write("%s" % json_encode(settings))
+        ldr = self.app.get_template_loader()
+        tmpl = ldr.load('settings.html')
+        system_entries = [
+            dict(name='Assigned Rig', value='None', type='input', id='assigned_rig')
+        ]
+
+        net = network_provider().list_interfaces()
+        wired = net['wired'][0]
+        # format IP address assignment method properly
+        wired_method = wired['ipv4']['method']
+        if wired_method == 'dhcp':
+            wired_method = 'DHCP'
+        elif wired_method == 'static':
+            wired_method = 'Static'
+
+        _log.debug('first wired interface: %s', wired)
+        network_entries = {
+            'wired': [
+                dict(name='IPv4 Address', value=wired['ipv4']['address'],
+                     type='input', id='ipv4_address'),
+                dict(name='IPv4 Mask', value=wired['ipv4']['netmask'],
+                     type='input', id='ipv4_netmask'),
+                dict(name='IPv4 Gateway', value=wired['ipv4']['gateway'],
+                     type='input', id='ipv4_gateway'),
+                dict(name='IPv4 Method', value=wired_method,
+                     type='dropdown', id='ipv4_method',
+                     options=['DHCP', 'Static'])
+            ]
+        }
+        self.write(tmpl.generate(system_entries=system_entries,
+                                 network_entries=network_entries,
+                                 configuration_active=True))
+
+
     def post(self):
-        temp = json_decode(self.request.body)
-        temp2 = {}
-        for key in temp:
-            _log.debug("key: %s, value: %s" % (key, temp[key]))
-            settings[key] = temp[key]
-            _log.debug("sett: %s" % settings[key])
-            temp2[key] = settings[key]
-        self.write("%s" % json_encode(temp2))
+        _log.debug('configuration set: %s' , self.request)
+        _log.debug('body: %s', self.request.body)
 
 
 class MainHandler(tornado.web.RequestHandler):

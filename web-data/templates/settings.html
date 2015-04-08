@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block head %}
+<script type="text/javascript">
+ window.onload = function() {
+
+     fix_ipv4_enabled = function() {
+         var method = $("#ipv4_method").val();
+         console.log("IPv4 method: " + method);
+         
+         if (method == "DHCP") {
+             $("#ipv4_address").prop("disabled", true);
+             $("#ipv4_netmask").prop("disabled", true);
+             $("#ipv4_gateway").prop("disabled", true);
+         } else if (this.value == "Static") {
+             $("#ipv4_address").prop("disabled", false);
+             $("#ipv4_netmask").prop("disabled", false);
+             $("#ipv4_gateway").prop("disabled", false);
+         }
+     };
+     
+     $("#ipv4_method").change(fix_ipv4_enabled);
+
+     fix_ipv4_enabled();
+ }
+</script>
+{% end %}
+
+{% block body %}
+<div>
+    <h3>Settings</h3>
+
+    <form method="post">
+        <h3>System</h3>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table">
+                        <tbody>
+                            {% for entry in system_entries %}
+                            <tr>
+                                <td class="col-md-6">{{ entry['name'] }}</td>
+                                <td>
+                                    {% if entry['type'] == 'input' %}
+                                    <input type="text" class="form-control"
+                                           name="{{ entry['id'] }}"
+                                           id="{{ entry['id'] }}"
+                                           value="{{ entry['value'] }}">
+                                    {% end %}
+                                </td>
+                            </tr>
+                            {% end %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <h3>Network</h3>
+        <div class="container">
+            {% for itype in network_entries.keys() %}
+            {% if network_entries[itype] %}
+            <div class="row">
+                <h4>{{ itype.capitalize() }}</h4>
+                <div class="col-md-6">
+                    <table class="table">
+                        <tbody>
+                            {% for entry in network_entries[itype] %}
+                            <tr>
+                                <td class="col-md-6">{{ entry['name'] }}</td>
+                                <td>
+                                    {% if entry['type'] == 'input' %}
+                                    <input type="text" class="form-control"
+                                           name="{{ entry['id'] }}"
+                                           id="{{ entry['id'] }}"
+                                           value="{{ entry['value'] }}">
+                                    {% end %}
+                                    
+                                    {% if entry['type'] == 'dropdown' %}
+                                    <select class="form-control" name="{{ entry['name'] }}"
+                                            id="{{ entry['id'] }}">
+                                        {% for option in entry['options'] %}
+                                        <option {% if option == entry['value'] %}
+                                                selected
+                                                {% end %}>
+                                            {{ option }}
+                                        </option>
+                                        {% end %}
+                                    </select>
+                                    {% end %}
+                                </td>
+                            </tr>
+                            {% end %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% end %}
+            {% end %}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Apply</button>
+        <button class="btn">Cancel</button>
+    </form>
+</div>
+{% end %}
