@@ -121,7 +121,8 @@ class MainHandler(tornado.web.RequestHandler):
         network_entries = self._net()
 
         self.write(tmpl.generate(system_entries=system_entries,
-                                 network_entries=network_entries))
+                                 network_entries=network_entries,
+                                 system_active=True))
 
 
 class Application(tornado.web.Application):
