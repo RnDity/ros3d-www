@@ -9,7 +9,7 @@ import os.path
 NAME='ros3dkrui'
 VERSION = '0.1'
 
-install_requires = ['tornado', 'dbus']
+install_requires = ['tornado']
 tests_require = []
 
 ROOT = os.path.dirname(__file__)
