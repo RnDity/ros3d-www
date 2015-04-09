@@ -50,5 +50,5 @@ setup(
             'ros3d-kr-ui = ros3dkrui.cmd:main'
         ]
     },
-    data_files=find_data('web-data', os.path.join('share', NAME))
+    data_files=find_data('web-data')
 )
