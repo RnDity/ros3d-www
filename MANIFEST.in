@@ -1,0 +1,2 @@
+recursive-include web-data *
+include *.py
