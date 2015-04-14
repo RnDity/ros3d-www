@@ -4,8 +4,10 @@
 
 from __future__ import absolute_import
 from ros3dkrui.system.network import network_provider
+from ros3dkrui.system.util import ConfigLoader
 import tornado.web
 import tornado.template
+from tornado.escape import parse_qs_bytes
 import logging
 import os.path
 
@@ -19,8 +21,13 @@ class SettingsHandler(tornado.web.RequestHandler):
     def get(self):
         ldr = self.app.get_template_loader()
         tmpl = ldr.load('settings.html')
+
+        config = ConfigLoader()
+        rig = config.get_system()
+        if not rig:
+            rig = None
         system_entries = [
-            dict(name='Assigned Rig', value=None, type='input', id='assigned_rig')
+            dict(name='Assigned Rig', value=rig, type='input', id='assigned_rig')
         ]
 
         net = network_provider().list_interfaces()
@@ -54,6 +61,62 @@ class SettingsHandler(tornado.web.RequestHandler):
     def post(self):
         _log.debug('configuration set: %s' , self.request)
         _log.debug('body: %s', self.request.body)
+
+        # parse request
+        arguments = parse_qs_bytes(self.request.body, keep_blank_values=False)
+        _log.debug('arguments: %s', arguments)
+
+        if arguments.has_key('assigned_rig') and arguments['assigned_rig'][0]:
+            rig = arguments['assigned_rig'][0]
+            _log.debug('set assigned rig to: %s', rig)
+        else:
+            rig = None
+
+        # wired network configuration
+        wired_config = {}
+        if arguments.has_key('eth_ipv4_method'):
+            method = arguments['eth_ipv4_method'][0].lower()
+            if method not in ['dhcp', 'static']:
+                # incorrect method
+                # TODO: raise exception
+                _log.error('incorrect method: %s', method)
+
+            ipv4_config = {
+                'method': method
+            }
+
+            static_method_keys = ['eth_ipv4_address',
+                                  'eth_ipv4_netmask',
+                                  'eth_ipv4_gateway']
+            if method == 'static':
+                if all([arguments.has_key(k) for k in static_method_keys]) == False:
+                    # missing confgiuration
+                    # TODO: raise exception
+                    _log.error('incorrect network configuration: %s', arguments)
+                else:
+                    ipv4_config['address'] = arguments['eth_ipv4_address'][0]
+                    ipv4_config['netmask'] = arguments['eth_ipv4_netmask'][0]
+                    ipv4_config['gateway'] = arguments['eth_ipv4_gateway'][0]
+            wired_config = {
+                'ipv4': ipv4_config
+            }
+
+        else:
+            # TODO: raise exception
+            _log.error('IPv4 method not specified in arguments: %s', arguments)
+
+        net = network_provider()
+        net_config = {
+            'wired': [wired_config]
+        }
+
+        net.set_config(net_config)
+
+        config = ConfigLoader()
+        config.set_system(rig)
+        config.write()
+
+        self.redirect('/?config_applied=1')
 
 
 class MainHandler(tornado.web.RequestHandler):
