@@ -83,9 +83,9 @@
                                            id="{{ entry['id'] }}"
                                            value="{{ entry['value'] }}">
                                     {% end %}
-                                    
+
                                     {% if entry['type'] == 'dropdown' %}
-                                    <select class="form-control" name="{{ entry['name'] }}"
+                                    <select class="form-control" name="{{ entry['id'] }}"
                                             id="{{ entry['id'] }}">
                                         {% for option in entry['options'] %}
                                         <option {% if option == entry['value'] %}
