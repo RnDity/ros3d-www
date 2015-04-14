@@ -20,7 +20,7 @@ class SettingsHandler(tornado.web.RequestHandler):
         ldr = self.app.get_template_loader()
         tmpl = ldr.load('settings.html')
         system_entries = [
-            dict(name='Assigned Rig', value='None', type='input', id='assigned_rig')
+            dict(name='Assigned Rig', value=None, type='input', id='assigned_rig')
         ]
 
         net = network_provider().list_interfaces()
