@@ -33,9 +33,14 @@
          if (validate_config() == true) {
              console.log("form seems valid");
              $("#form_config").submit();
+             return true;
          } else {
              console.log("form invalid");
          }
+         return false;
+     });
+     $("#btn_config_cancel").click(function() {
+         return false;
      });
  }
 </script>
@@ -120,7 +125,7 @@
         </div>
 
         <button id="btn_config_submit" class="btn btn-primary">Apply</button>
-        <button class="btn">Cancel</button>
+        <button id="btn_config_cancel" class="btn">Cancel</button>
     </form>
 </div>
 {% end %}
