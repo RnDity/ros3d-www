@@ -1,5 +1,16 @@
 {% extends "base.html" %}
 
+{% block alerts %}
+{% if config_applied == True %}
+<div class="alert alert-success" style="margin-top: 20px;" role="alert">
+    Configuration applied!
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+{% end %}
+{% end %}
+
 {% block body %}
 <div>
     <h3>Status</h3>

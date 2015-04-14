@@ -136,6 +136,11 @@ class MainHandler(tornado.web.RequestHandler):
 
     def get(self):
         _log.debug("get: %r", self.request)
+
+        config_applied = self.get_argument('config_applied', False)
+        if config_applied == '1':
+            config_applied = True
+
         ldr = self.app.get_template_loader()
         tmpl = ldr.load('status.html')
 
@@ -148,6 +153,7 @@ class MainHandler(tornado.web.RequestHandler):
 
         self.write(tmpl.generate(system_entries=system_entries,
                                  network_entries=network_entries,
+                                 config_applied=config_applied,
                                  system_active=True))
 
 
