@@ -67,7 +67,11 @@ class ConnmanProvider(object):
             ipv4['netmask'] = str(props['IPv4']['Netmask'])
             if 'Gateway' in props['IPv4']:
                 ipv4['gateway'] = str(props['IPv4']['Gateway'])
-            ipv4['method'] = str(props['IPv4']['Method'])
+            method = str(props['IPv4']['Method'])
+            if method == 'manual':
+                ipv4['method'] = 'static'
+            elif method == 'dhcp':
+                ipv4['method'] = 'dhcp'
 
             iface['ipv4'] = ipv4
             if service_type not in interface_data:
