@@ -5,21 +5,22 @@
  window.onload = function() {
 
      fix_ipv4_enabled = function() {
-         var method = $("#ipv4_method").val();
+         var method = $("#eth_ipv4_method").val();
          console.log("IPv4 method: " + method);
-         
+
+         /* by default assume static IP */
+         var enableval = false;
          if (method == "DHCP") {
-             $("#ipv4_address").prop("disabled", true);
-             $("#ipv4_netmask").prop("disabled", true);
-             $("#ipv4_gateway").prop("disabled", true);
-         } else if (this.value == "Static") {
-             $("#ipv4_address").prop("disabled", false);
-             $("#ipv4_netmask").prop("disabled", false);
-             $("#ipv4_gateway").prop("disabled", false);
+             enableval = true;
          }
-     };
-     
-     $("#ipv4_method").change(fix_ipv4_enabled);
+
+         var ids = ["#eth_ipv4_address",
+                    "#eth_ipv4_netmask",
+                    "#eth_ipv4_gateway"];
+         ids.forEach(function (entry) {
+             $(entry).prop("disabled", enableval);
+         });
+     }
 
      fix_ipv4_enabled();
  }

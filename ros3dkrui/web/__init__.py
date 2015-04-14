@@ -36,13 +36,13 @@ class SettingsHandler(tornado.web.RequestHandler):
         network_entries = {
             'wired': [
                 dict(name='IPv4 Address', value=wired['ipv4']['address'],
-                     type='input', id='ipv4_address'),
+                     type='input', id='eth_ipv4_address'),
                 dict(name='IPv4 Mask', value=wired['ipv4']['netmask'],
-                     type='input', id='ipv4_netmask'),
+                     type='input', id='eth_ipv4_netmask'),
                 dict(name='IPv4 Gateway', value=wired['ipv4']['gateway'],
-                     type='input', id='ipv4_gateway'),
+                     type='input', id='eth_ipv4_gateway'),
                 dict(name='IPv4 Method', value=wired_method,
-                     type='dropdown', id='ipv4_method',
+                     type='dropdown', id='eth_ipv4_method',
                      options=['DHCP', 'Static'])
             ]
         }
