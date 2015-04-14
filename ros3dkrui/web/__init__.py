@@ -207,9 +207,14 @@ class MainHandler(tornado.web.RequestHandler):
         ldr = self.app.get_template_loader()
         tmpl = ldr.load('status.html')
 
+        config = ConfigLoader()
+        rig = config.get_system()
+        if not rig:
+            rig = 'None'
+
         system_entries= [
             dict(name='Hostname', value='ros3d-kr'),
-            dict(name='Assigned Rig', value='None')
+            dict(name='Assigned Rig', value=rig)
         ]
         system_entries.append(dict(name='Uptime', value=self._uptime()))
         network_entries = self._net()
