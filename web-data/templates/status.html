@@ -1,8 +1,21 @@
 {% extends "base.html" %}
 
+{% block head %}
+<script type="text/javascript">
+ window.onload = function() {
+     $("#config_applied_alert").on("closed.bs.alert", function () {
+         /* remove ?config_applied on close */
+         location.href = location.toString().replace(location.search,
+                                                     "");
+     });
+ }
+</script>
+{% end %}
+
 {% block alerts %}
 {% if config_applied == True %}
-<div class="alert alert-success" style="margin-top: 20px;" role="alert">
+<div id="config_applied_alert" class="alert alert-success"
+     style="margin-top: 20px;" role="alert">
     Configuration applied!
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
