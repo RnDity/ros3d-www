@@ -22,9 +22,21 @@
          });
      }
 
+     validate_config = function() {
+         return true;
+     }
      $("#eth_ipv4_method").change(fix_ipv4_enabled);
 
      fix_ipv4_enabled();
+
+     $("#btn_config_submit").click(function() {
+         if (validate_config() == true) {
+             console.log("form seems valid");
+             $("#form_config").submit();
+         } else {
+             console.log("form invalid");
+         }
+     });
  }
 </script>
 {% end %}
@@ -33,7 +45,7 @@
 <div>
     <h3>Settings</h3>
 
-    <form method="post">
+    <form method="post" id="form_config">
         <h3>System</h3>
         <div class="container">
             <div class="row">
@@ -107,7 +119,7 @@
             {% end %}
         </div>
 
-        <button type="submit" class="btn btn-primary">Apply</button>
+        <button id="btn_config_submit" class="btn btn-primary">Apply</button>
         <button class="btn">Cancel</button>
     </form>
 </div>
