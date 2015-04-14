@@ -11,10 +11,14 @@ import logging
 _log = logging.getLogger(__name__)
 
 class ConnmanProvider(object):
+
+    CONNMAN_SERVICE_NAME = 'net.connman'
+    CONNMAN_MANAGER_IFACE = 'net.connman.Manager'
+
     def __init__(self):
         self.bus = dbus.SystemBus()
-        cmobj = self.bus.get_object('net.connman', '/')
-        self.cm = dbus.Interface(cmobj, 'net.connman.Manager')
+        cmobj = self.bus.get_object(self.CONNMAN_SERVICE_NAME, '/')
+        self.cm = dbus.Interface(cmobj, self.CONNMAN_MANAGER_IFACE)
 
     def list_interfaces(self):
         # service corresponds to interface, wired/wireless/modem..
