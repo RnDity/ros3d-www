@@ -13,6 +13,21 @@ _log = logging.getLogger(__name__)
 
 def _make_variant(string):
     """Convert Python string to DBus.String"""
+    return dbus.String#
+# Copyright (c) 2015, Open-RnD Sp. z o.o.  All rights reserved.
+#
+
+import dbus
+import glib
+from dbus.mainloop.glib import DBusGMainLoop
+import logging
+
+
+_log = logging.getLogger(__name__)
+
+
+def _make_variant(string):
+    """Convert Python string to DBus.String"""
     return dbus.String(string, variant_level=1)
 
 
@@ -123,30 +138,67 @@ class ConnmanProvider(object):
 
         return interface_data
 
-    def _find_service_of_type(self, service_type):
-        """Find a service of matching type among connman services. Returns
-        path to service or None"""
-        _log.debug('find service of type: %s', service_type)
+    def _find_service(self, predicate):
+        """Find a service for which the predicate returns True. Returns path
+        to service or None.
+        """
         services = self.cm.GetServices()
 
         for service in services:
             path, props = service
-            _log.debug('check service %s of type %s', path, props['Type'])
-            if props['Type'].lower() == service_type.lower():
-                _log.debug('matching service of type %s: %s',
-                           service_type, path)
+            if predicate(props) == True:
+                _log.debug('matching service: %s', path)
                 return path
-        _log.info('service of type %s not found', service_type)
+        _log.info('matching service not found')
         return None
+
+    def _find_service_of_type(self, service_type):
+        """Find a service of matching type among connman services. Returns
+        path to service or None"""
+        _log.debug('find service of type: %s', service_type)
+
+        def _match_type(props):
+            _log.debug('check service of type %s', props['Type'])
+            if props['Type'].lower() == service_type.lower():
+                _log.debug('matching service of type %s',
+                           service_type)
+                return True
+            return False
+
+        return self._find_service(_match_type)
+
+    def _find_service_of_name(self, service_name):
+        """Find a service of matching name among connman services. Returns
+        path to service or None"""
+        _log.debug('find service of name: \'%s\'', service_name)
+
+        def _match_name(props):
+            _log.debug('check service of name %s', props['Name'])
+            if props['Name'] == service_name:
+                _log.debug('matching service of name \'%s\'',
+                           service_name)
+                return True
+            return False
+
+        return self._find_service(_match_name)
 
     def set_config(self, config):
         _log.debug('set configuration: %s', config)
 
-        path = self._find_service_of_type('ethernet')
-        _log.debug('service path: %s', path)
-        self.set_service_config(path, config['wired'][0])
+        for key, conf in config.items():
+            if key == 'wired':
+                path = self._find_service_of_type('ethernet')
+            elif key == 'wireless':
+                path = self._find_service_of_name(conf[0]['name'])
+
+            _log.debug('service path: %s', path)
+            if path:
+                self.set_service_config(path, conf[0])
+            else:
+                _log.error('service %s not configured', key)
 
     def set_service_config(self, path, config):
+        _log.debug('set config for service %s to: %s', path, config)
         servobj = self.bus.get_object(self.CONNMAN_SERVICE_NAME, path)
         service = dbus.Interface(servobj, self.CONNMAN_SERVICE_IFACE)
         #props = dbus.Interface(servobj, 'org.freedesktop.DBus.Properties')
@@ -163,9 +215,15 @@ class ConnmanProvider(object):
         elif config['ipv4']['method'].lower() == 'dhcp':
             ipv4_config['Method'] = _make_variant('dhcp')
 
-
         _log.debug('setting configuration: %s', ipv4_config)
         service.SetProperty('IPv4.Configuration', ipv4_config)
+
+        # if 'name' in config:
+        #     _log.debug('setting name to %s', config['name'])
+        #     service.SetProperty('Name', _make_variant(config['name']))
+        if 'password' in config:
+            _log.debug('setting password to %s', config['password'])
+            service.SetProperty('Passphrase', _make_variant(config['password']))
 
 
 def network_provider():
