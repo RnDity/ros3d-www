@@ -32,12 +32,21 @@ class SettingsHandler(tornado.web.RequestHandler):
 
         net = network_provider().list_interfaces()
         wired = net['wired'][0]
+        if bool(net.get('wireless', [])):
+            wireless = net['wireless'][0]
+        else:
+            wireless = None
+
         # format IP address assignment method properly
-        wired_method = wired['ipv4conf']['method']
-        if wired_method == 'dhcp':
-            wired_method = 'DHCP'
-        elif wired_method == 'static':
-            wired_method = 'Static'
+        def _convert_ip_method(in_method):
+            """Convert passed IP method to a value that is suitable for presentation"""
+            conv_method = {
+                'dhcp': 'DHCP',
+                'static': 'Static'
+            }
+            return conv_method.get(in_method, 'Unknown')
+
+        eth_method = _convert_ip_method(wired['ipv4conf']['method'])
 
         _log.debug('first wired interface: %s', wired)
         if wired['online']:
@@ -45,9 +54,11 @@ class SettingsHandler(tornado.web.RequestHandler):
             eth_netmask = wired['ipv4']['netmask']
             eth_gateway = wired['ipv4']['gateway']
         else:
-            eth_address = None
-            eth_netmask = None
-            eth_gateway = None
+            eth_address = wired['ipv4conf']['address']
+            eth_netmask = wired['ipv4conf']['address']
+            eth_gateway = wired['ipv4conf']['address']
+
+        # setup wired interface
         network_entries = {
             'wired': [
                 dict(name='IPv4 Address', value=eth_address,
@@ -56,14 +67,41 @@ class SettingsHandler(tornado.web.RequestHandler):
                      type='input', id='eth_ipv4_netmask'),
                 dict(name='IPv4 Gateway', value=eth_gateway,
                      type='input', id='eth_ipv4_gateway'),
-                dict(name='IPv4 Method', value=wired_method,
+                dict(name='IPv4 Method', value=eth_method,
                      type='dropdown', id='eth_ipv4_method',
                      options=['DHCP', 'Static'])
             ],
-            'wireless': [
-
-            ]
+            'wireless': []
         }
+
+        if wireless:
+            wifi_method = _convert_ip_method(wireless['ipv4conf']['method'])
+            if wireless['online']:
+                wifi_address = wireless['ipv4']['address']
+                wifi_netmask = wireless['ipv4']['netmask']
+                wifi_gateway = wireless['ipv4']['gateway']
+            else:
+                wifi_address = wireless['ipv4conf']['address']
+                wifi_netmask = wireless['ipv4conf']['netmask']
+                wifi_gateway = wireless['ipv4conf']['gateway']
+
+            wireless_entry = [
+                dict(name='Access Point', value=None,
+                     type='input', id='wifi_ap_name'),
+                dict(name='Password', value=None,
+                     type='input', id='wifi_psk_pass'),
+                dict(name='IPv4 Address', value=wifi_address,
+                     type='input', id='wifi_ipv4_address'),
+                dict(name='IPv4 Mask', value=wifi_netmask,
+                     type='input', id='wifi_ipv4_netmask'),
+                dict(name='IPv4 Gateway', value=wifi_gateway,
+                     type='input', id='wifi_ipv4_gateway'),
+                dict(name='IPv4 Method', value=wifi_method,
+                     type='dropdown', id='wifi_ipv4_method',
+                     options=['DHCP', 'Static'])
+            ]
+            network_entries['wireless'] = wireless_entry
+
         self.write(tmpl.generate(system_entries=system_entries,
                                  network_entries=network_entries,
                                  configuration_active=True))
@@ -83,42 +121,55 @@ class SettingsHandler(tornado.web.RequestHandler):
         else:
             rig = None
 
-        # wired network configuration
         wired_config = {}
-        if arguments.has_key('eth_ipv4_method'):
-            method = arguments['eth_ipv4_method'][0].lower()
-            if method not in ['dhcp', 'static']:
-                # incorrect method
-                # TODO: raise exception
-                _log.error('incorrect method: %s', method)
+        wireless_config = {}
 
-            ipv4_config = {
-                'method': method
-            }
-
-            static_method_keys = ['eth_ipv4_address',
-                                  'eth_ipv4_netmask',
-                                  'eth_ipv4_gateway']
-            if method == 'static':
-                if all([arguments.has_key(k) for k in static_method_keys]) == False:
-                    # missing confgiuration
+        def get_ip_config(prefix):
+            if arguments.has_key(prefix + '_ipv4_method'):
+                method = arguments[prefix + '_ipv4_method'][0].lower()
+                if method not in ['dhcp', 'static']:
+                    # incorrect method
                     # TODO: raise exception
-                    _log.error('incorrect network configuration: %s', arguments)
-                else:
-                    ipv4_config['address'] = arguments['eth_ipv4_address'][0]
-                    ipv4_config['netmask'] = arguments['eth_ipv4_netmask'][0]
-                    ipv4_config['gateway'] = arguments['eth_ipv4_gateway'][0]
-            wired_config = {
-                'ipv4': ipv4_config
-            }
+                    _log.error('incorrect method: %s', method)
 
-        else:
-            # TODO: raise exception
-            _log.error('IPv4 method not specified in arguments: %s', arguments)
+                ipv4_config = {
+                    'method': method
+                }
+
+                static_method_keys = [prefix + '_ipv4_address',
+                                      prefix + '_ipv4_netmask',
+                                      prefix + '_ipv4_gateway']
+                if method == 'static':
+                    if all([arguments.has_key(k) for k in static_method_keys]) == False:
+                        # missing confgiuration
+                        # TODO: raise exception
+                        _log.error('incorrect network configuration: %s', arguments)
+                    else:
+                        ipv4_config['address'] = arguments[prefix + '_ipv4_address'][0]
+                        ipv4_config['netmask'] = arguments[prefix + '_ipv4_netmask'][0]
+                        ipv4_config['gateway'] = arguments[prefix + '_ipv4_gateway'][0]
+                return ipv4_config
+            else:
+                # TODO: raise exception
+                _log.error('IPv4 method not specified in arguments: %s', arguments)
+            return None
+
+        wired_config['ipv4'] = get_ip_config('eth')
+        wireless_config['ipv4'] = get_ip_config('wifi')
+
+        def get_arg(arg):
+            if arguments.has_key(arg):
+                return arguments[arg][0]
+            else:
+                return None
+
+        wireless_config['name'] = get_arg('wifi_ap_name')
+        wireless_config['password'] = get_arg('wifi_psk_pass')
 
         net = network_provider()
         net_config = {
-            'wired': [wired_config]
+            'wired': [wired_config],
+            'wireless': [wireless_config]
         }
 
         net.set_config(net_config)
@@ -127,7 +178,7 @@ class SettingsHandler(tornado.web.RequestHandler):
         config.set_system(rig)
         config.write()
 
-        self.redirect('/?config_applied=1')
+        # self.redirect('/?config_applied=1')
 
 
 class MainHandler(tornado.web.RequestHandler):
