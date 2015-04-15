@@ -86,10 +86,21 @@ class ConnmanProvider(object):
 
             _log.info("service: %s", props['Name'])
 
-            service_type = props['Name'].lower()
             iface = {}
+            iface['type'] = str(props['Type']).lower()
+            _log.debug('interface type %s', iface['type'])
+            # convert interface type to wifi/wireless
+            if iface['type'] == 'ethernet':
+                iface['type'] = 'wired'
+            elif iface['type'] == 'wifi':
+                iface['type'] = 'wireless'
+            _log.debug('updated interface type %s', iface['type'])
 
-            iface['type'] = str(props['Type'])
+            service_type = iface['type']
+
+            # service name, for ethernet this will be wired, for wifi
+            # this contains SSID
+            iface['name'] = str(props['Name'])
 
             if props['State'] in ['online', 'ready']:
                 iface['online'] = True

@@ -166,6 +166,10 @@ class MainHandler(tornado.web.RequestHandler):
             # interface status
             if idata['online']:
                 entry.append(dict(name='State', value='Up'))
+
+                # add connected access point entry
+                if idata['type'] == 'wireless':
+                    entry.append(dict(name='Access Point', value=idata['name']))
             else:
                 # may not be online but still usable with local addressing
                 if ipv4 and ipv4['address'].startswith('169.254'):
