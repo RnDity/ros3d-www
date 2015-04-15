@@ -4,8 +4,9 @@
 <script type="text/javascript">
  window.onload = function() {
 
-     fix_ipv4_enabled = function() {
-         var method = $("#eth_ipv4_method").val();
+     fix_ipv4_enabled = function(id_pref) {
+         
+         var method = $("#"+id_pref+"_ipv4_method").val();
          console.log("IPv4 method: " + method);
 
          /* by default assume static IP */
@@ -14,9 +15,9 @@
              enableval = true;
          }
 
-         var ids = ["#eth_ipv4_address",
-                    "#eth_ipv4_netmask",
-                    "#eth_ipv4_gateway"];
+         var ids = ["#"+id_pref+"_ipv4_address",
+                    "#"+id_pref+"_ipv4_netmask",
+                    "#"+id_pref+"_ipv4_gateway"];
          ids.forEach(function (entry) {
              $(entry).prop("disabled", enableval);
          });
@@ -25,9 +26,15 @@
      validate_config = function() {
          return true;
      }
-     $("#eth_ipv4_method").change(fix_ipv4_enabled);
+     $("#eth_ipv4_method").change(function() {
+         fix_ipv4_enabled("eth");
+     });
+     $("#wifi_ipv4_method").change(function() {
+         fix_ipv4_enabled("wifi");
+     });
 
-     fix_ipv4_enabled();
+     fix_ipv4_enabled("eth");
+     fix_ipv4_enabled("wifi");
 
      $("#btn_config_submit").click(function() {
          if (validate_config() == true) {
