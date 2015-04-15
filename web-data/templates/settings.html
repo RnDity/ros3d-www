@@ -98,7 +98,12 @@
                                     <input type="text" class="form-control"
                                            name="{{ entry['id'] }}"
                                            id="{{ entry['id'] }}"
-                                           value="{{ entry['value'] }}">
+                                           {% if entry['value'] %}
+                                           value="{{ entry['value'] }}"
+                                           {% else %}
+                                           placeholder="None"
+                                           {% end %}
+                                           >
                                     {% end %}
 
                                     {% if entry['type'] == 'dropdown' %}
