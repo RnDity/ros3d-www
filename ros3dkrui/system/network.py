@@ -69,11 +69,11 @@ class ConnmanProvider(object):
             else:
                 iface['online'] = False
 
+            iface['device'] = str(props['Ethernet']['Interface'])
+            iface['mac'] = str(props['Ethernet']['Address'])
+
             # skip interface that is not online
             if iface['online'] == True:
-                iface['name'] = str(props['Ethernet']['Interface'])
-                iface['mac'] = str(props['Ethernet']['Address'])
-
                 ipv4['address'] = str(props['IPv4']['Address'])
                 ipv4['netmask'] = str(props['IPv4']['Netmask'])
                 if 'Gateway' in props['IPv4']:

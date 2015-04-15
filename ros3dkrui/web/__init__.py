@@ -160,7 +160,7 @@ class MainHandler(tornado.web.RequestHandler):
 
             ipv4 = idata.get('ipv4', None)
             # first interface name
-            entry.append(dict(name='Interface', value=idata['name']))
+            entry.append(dict(name='Interface', value=idata['device']))
             # MAC address comes next
             entry.append(dict(name='MAC Address', value=idata['mac']))
             # interface status
