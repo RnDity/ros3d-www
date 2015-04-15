@@ -16,6 +16,34 @@ def _make_variant(string):
     return dbus.String(string, variant_level=1)
 
 
+def _extract_ip_data(props, key='IPv4'):
+    """Extract IPv4/IPv6 data from service properties. The key can either
+    be IPv4 (to extract current state) or IPv4.Configuration (to
+    extract configuration).
+    """
+    ipv4 = {}
+    # list of keys in original property set and the key used in
+    # returned dict
+    key_entries = [('Address', 'address'),
+                   ('Netmask', 'netmask'),
+                   ('Gateway', 'gateway'),
+                   ('Method', 'method')]
+
+    for orig_key, to_key in key_entries:
+        if orig_key in props[key]:
+            ipv4[to_key] = str(props[key][orig_key])
+            if orig_key == 'Method':
+                method = str(props[key][orig_key])
+                if method == 'manual':
+                    ipv4['method'] = 'static'
+                elif method == 'dhcp':
+                    ipv4['method'] = 'dhcp'
+        else:
+            ipv4[to_key] = None
+
+    return ipv4
+
+
 class ConnmanProvider(object):
 
     CONNMAN_SERVICE_NAME = 'net.connman'
@@ -60,7 +88,6 @@ class ConnmanProvider(object):
 
             service_type = props['Name'].lower()
             iface = {}
-            ipv4 = {}
 
             iface['type'] = str(props['Type'])
 
@@ -74,17 +101,10 @@ class ConnmanProvider(object):
 
             # skip interface that is not online
             if iface['online'] == True:
-                ipv4['address'] = str(props['IPv4']['Address'])
-                ipv4['netmask'] = str(props['IPv4']['Netmask'])
-                if 'Gateway' in props['IPv4']:
-                    ipv4['gateway'] = str(props['IPv4']['Gateway'])
-                method = str(props['IPv4']['Method'])
-                if method == 'manual':
-                    ipv4['method'] = 'static'
-                elif method == 'dhcp':
-                    ipv4['method'] = 'dhcp'
+                iface['ipv4'] = _extract_ip_data(props, 'IPv4')
 
-            iface['ipv4'] = ipv4
+            iface['ipv4conf'] = _extract_ip_data(props, 'IPv4.Configuration')
+
             if service_type not in interface_data:
                 interface_data[service_type] = []
 
