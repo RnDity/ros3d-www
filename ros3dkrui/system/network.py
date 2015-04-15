@@ -59,7 +59,7 @@ class ConnmanProvider(object):
         # Connman service does not map directly to interface. A
         # visible AP can also be considered a service
         services = self.cm.GetServices()
-        _log.debug('services: %s', services)
+        # _log.debug('services: %s', services)
 
         # dictionary, with interface type as key, keys are:
         # - wired
