@@ -33,24 +33,35 @@ class SettingsHandler(tornado.web.RequestHandler):
         net = network_provider().list_interfaces()
         wired = net['wired'][0]
         # format IP address assignment method properly
-        wired_method = wired['ipv4']['method']
+        wired_method = wired['ipv4conf']['method']
         if wired_method == 'dhcp':
             wired_method = 'DHCP'
         elif wired_method == 'static':
             wired_method = 'Static'
 
         _log.debug('first wired interface: %s', wired)
+        if wired['online']:
+            eth_address = wired['ipv4']['address']
+            eth_netmask = wired['ipv4']['netmask']
+            eth_gateway = wired['ipv4']['gateway']
+        else:
+            eth_address = None
+            eth_netmask = None
+            eth_gateway = None
         network_entries = {
             'wired': [
-                dict(name='IPv4 Address', value=wired['ipv4']['address'],
+                dict(name='IPv4 Address', value=eth_address,
                      type='input', id='eth_ipv4_address'),
-                dict(name='IPv4 Mask', value=wired['ipv4']['netmask'],
+                dict(name='IPv4 Mask', value=eth_netmask,
                      type='input', id='eth_ipv4_netmask'),
-                dict(name='IPv4 Gateway', value=wired['ipv4']['gateway'],
+                dict(name='IPv4 Gateway', value=eth_gateway,
                      type='input', id='eth_ipv4_gateway'),
                 dict(name='IPv4 Method', value=wired_method,
                      type='dropdown', id='eth_ipv4_method',
                      options=['DHCP', 'Static'])
+            ],
+            'wireless': [
+
             ]
         }
         self.write(tmpl.generate(system_entries=system_entries,
