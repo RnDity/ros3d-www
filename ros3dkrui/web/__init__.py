@@ -46,7 +46,7 @@ class SettingsHandler(tornado.web.RequestHandler):
             }
             return conv_method.get(in_method, 'Unknown')
 
-        eth_method = _convert_ip_method(wired['ipv4conf']['method'])
+        eth_method = _convert_ip_method(wired['ipv4']['method'])
 
         _log.debug('first wired interface: %s', wired)
         if wired['online']:
@@ -54,9 +54,9 @@ class SettingsHandler(tornado.web.RequestHandler):
             eth_netmask = wired['ipv4']['netmask']
             eth_gateway = wired['ipv4']['gateway']
         else:
-            eth_address = wired['ipv4conf']['address']
-            eth_netmask = wired['ipv4conf']['address']
-            eth_gateway = wired['ipv4conf']['address']
+            eth_address = None
+            eth_netmask = None
+            eth_gateway = None
 
         # setup wired interface
         network_entries = {
@@ -75,15 +75,15 @@ class SettingsHandler(tornado.web.RequestHandler):
         }
 
         if wireless:
-            wifi_method = _convert_ip_method(wireless['ipv4conf']['method'])
+            wifi_method = _convert_ip_method(wireless['ipv4']['method'])
             if wireless['online']:
                 wifi_address = wireless['ipv4']['address']
                 wifi_netmask = wireless['ipv4']['netmask']
                 wifi_gateway = wireless['ipv4']['gateway']
             else:
-                wifi_address = wireless['ipv4conf']['address']
-                wifi_netmask = wireless['ipv4conf']['netmask']
-                wifi_gateway = wireless['ipv4conf']['gateway']
+                wifi_address = None
+                wifi_netmask = None
+                wifi_gateway = None
 
             wireless_entry = [
                 dict(name='Access Point', value=None,
