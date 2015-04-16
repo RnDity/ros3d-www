@@ -226,18 +226,12 @@ class ConnmanProvider(object):
             service.SetProperty('Passphrase', _make_variant(config['password']))
 
 
-def network_provider():
-    # quick dbus init
+def get_connman_provider():
+    """Get an instance of ConnmanProvider"""
     glib.threads_init()
     dbus.mainloop.glib.threads_init()
+
     DBusGMainLoop(set_as_default=True)
 
     return ConnmanProvider()
 
-
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
-
-    provider = network_provider()
-    ifaces = provider.list_interfaces()
-    logging.debug('ifaces: %s', ifaces)
