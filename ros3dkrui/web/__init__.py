@@ -10,8 +10,26 @@ import tornado.template
 from tornado.escape import parse_qs_bytes
 import logging
 import os.path
+from functools import partial
+
 
 _log = logging.getLogger(__name__)
+
+
+def widget_render(ldr, widget):
+    """Render a form widget using a template loder and widget
+    description. Widget description is a dict with fields:
+    - id - used as field id/name
+    - value - field value or None
+    - type - dropdown/input/password/plain etc.
+
+    Dropdown widgets will produce a dropbox. Input/password produce a
+    one line text input (password uses masking characters). Plain,
+    outputs entry's value as it is.
+    """
+    _log.debug('render widget: %s', widget)
+    tmpl = ldr.load('widgets.html')
+    return tmpl.generate(entry=widget)
 
 
 class SettingsHandler(tornado.web.RequestHandler):
@@ -100,11 +118,16 @@ class SettingsHandler(tornado.web.RequestHandler):
                      type='dropdown', id='wifi_ipv4_method',
                      options=['DHCP', 'Static'])
             ]
-            network_entries['wireless'] = wireless_entry
+        else:
+            wireless_entry = [
+                dict(name='Status', value='No device')
+            ]
+        network_entries['wireless'] = wireless_entry
 
         self.write(tmpl.generate(system_entries=system_entries,
                                  network_entries=network_entries,
-                                 configuration_active=True))
+                                 configuration_active=True,
+                                 widget_render=partial(widget_render, ldr)))
 
 
     def post(self):
@@ -292,7 +315,8 @@ class MainHandler(tornado.web.RequestHandler):
         self.write(tmpl.generate(system_entries=system_entries,
                                  network_entries=network_entries,
                                  config_applied=config_applied,
-                                 system_active=True))
+                                 system_active=True,
+                                 widget_render=partial(widget_render, ldr)))
 
 
 class Application(tornado.web.Application):

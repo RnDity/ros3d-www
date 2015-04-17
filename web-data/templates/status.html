@@ -35,7 +35,7 @@
                         {% for entry in system_entries %}
                         <tr>
                             <td class="col-md-6">{{ entry['name'] }}</td>
-                            <td>{{ entry['value'] }}</td>
+                            <td>{% raw widget_render(entry) %}</td>
                         </tr>
                         {% end %}
                     </tbody>
@@ -56,7 +56,7 @@
                         {% for entry in network_entries[itype] %}
                         <tr>
                             <td class="col-md-6">{{ entry['name'] }}</td>
-                            <td>{{ entry['value'] }}</td>
+                            <td>{% raw widget_render(entry) %}</td>
                         </tr>
                         {% end %}
                     </tbody>

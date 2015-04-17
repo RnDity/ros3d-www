@@ -68,17 +68,7 @@
                             <tr>
                                 <td class="col-md-6">{{ entry['name'] }}</td>
                                 <td>
-                                    {% if entry['type'] == 'input' %}
-                                    <input type="text" class="form-control"
-                                           name="{{ entry['id'] }}"
-                                           id="{{ entry['id'] }}"
-                                           {% if entry['value'] %}
-                                           value="{{ entry['value'] }}"
-                                           {% else %}
-                                           placeholder="None"
-                                           {% end %}
-                                           >
-                                    {% end %}
+                                    {% raw widget_render(entry) %}
                                 </td>
                             </tr>
                             {% end %}
@@ -101,30 +91,7 @@
                             <tr>
                                 <td class="col-md-6">{{ entry['name'] }}</td>
                                 <td>
-                                    {% if entry['type'] == 'input' %}
-                                    <input type="text" class="form-control"
-                                           name="{{ entry['id'] }}"
-                                           id="{{ entry['id'] }}"
-                                           {% if entry['value'] %}
-                                           value="{{ entry['value'] }}"
-                                           {% else %}
-                                           placeholder="None"
-                                           {% end %}
-                                           >
-                                    {% end %}
-
-                                    {% if entry['type'] == 'dropdown' %}
-                                    <select class="form-control" name="{{ entry['id'] }}"
-                                            id="{{ entry['id'] }}">
-                                        {% for option in entry['options'] %}
-                                        <option {% if option == entry['value'] %}
-                                                selected
-                                                {% end %}>
-                                            {{ option }}
-                                        </option>
-                                        {% end %}
-                                    </select>
-                                    {% end %}
+                                    {% raw widget_render(entry) %}
                                 </td>
                             </tr>
                             {% end %}

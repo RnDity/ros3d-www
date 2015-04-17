@@ -1,0 +1,35 @@
+{% if entry.has_key('type') %}
+
+{% if entry['type'] == 'input' %}
+<input type="text" class="form-control"
+       name="{{ entry['id'] }}"
+       id="{{ entry['id'] }}"
+       {% if entry['value'] %}
+       value="{{ entry['value'] }}"
+       {% else %}
+       placeholder="None"
+       {% end %}
+       >
+{% end %}
+
+{% if entry['type'] == 'dropdown' %}
+<select class="form-control" name="{{ entry['id'] }}"
+        id="{{ entry['id'] }}">
+    {% for option in entry['options'] %}
+    <option {% if option == entry['value'] %}
+            selected
+            {% end %}>
+        {{ option }}
+    </option>
+    {% end %}
+</select>
+{% end %}
+
+{% if entry['type'] == 'plain' %}
+{{ entry['value'] }}
+{% end %}
+
+{% else %}
+{{ entry['value'] }}
+{% end %}
+
