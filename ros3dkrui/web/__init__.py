@@ -208,6 +208,10 @@ class MainHandler(tornado.web.RequestHandler):
         # we're intersted in wired and wireless interfaces only
         for itype in network_entries.keys():
             if itype not in data:
+                # device status is present in interface data, assuming
+                # that there should be one add a status info that
+                # there is 'no device' at this time
+                network_entries[itype].append(dict(name='State', value='No device'))
                 _log.debug('interface type %s not in available interfaces',
                            itype)
                 continue
