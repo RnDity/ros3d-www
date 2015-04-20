@@ -73,7 +73,7 @@ class SettingsHandler(tornado.web.RequestHandler):
         eth_address = wired[src].get('address', None)
         eth_netmask = wired[src].get('netmask', None)
         eth_gateway = wired[src].get('gateway', None)
-        eth_method = _convert_ip_method(wired[src]['method'])
+        eth_method = _convert_ip_method(wired[src].get('method', 'dhcp'))
 
         # setup wired interface
         network_entries = {
@@ -99,7 +99,7 @@ class SettingsHandler(tornado.web.RequestHandler):
             wifi_address = wireless[src].get('address', None)
             wifi_netmask = wireless[src].get('netmask', None)
             wifi_gateway = wireless[src].get('gateway', None)
-            wifi_method = _convert_ip_method(wireless[src]['method'])
+            wifi_method = _convert_ip_method(wireless[src].get('method', 'dhcp'))
 
             if wireless['wificonf']:
                 wifi_ap = wireless['wificonf'].get('name', None)
