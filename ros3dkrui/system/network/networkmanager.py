@@ -234,7 +234,7 @@ class NetworkManagerProvider(object):
         data = iface.GetSettings()
         ipv4conf = {}
 
-        if data['ipv4']['method'] == 'auto':
+        if data.has_key('ipv4') == False or data['ipv4']['method'] == 'auto':
             ipv4conf['method'] = 'dhcp'
         else:
             ipv4conf['method'] = 'static'
