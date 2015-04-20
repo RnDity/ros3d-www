@@ -1,7 +1,12 @@
 {% if entry.has_key('type') %}
 
-{% if entry['type'] == 'input' %}
-<input type="text" class="form-control"
+{% if entry['type'] == 'input' or entry['type'] == 'password' %}
+<input class="form-control"
+       {% if entry['type'] == 'input' %}
+       type="text"
+       {% elif entry['type'] == 'password' %}
+       type="password"
+       {% end %}
        name="{{ entry['id'] }}"
        id="{{ entry['id'] }}"
        {% if entry['value'] %}
