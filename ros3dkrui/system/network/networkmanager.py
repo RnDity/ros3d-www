@@ -229,6 +229,7 @@ class NetworkManagerProvider(object):
         iface = self._get_settings_of_type(devtype)
         if not iface:
             _log.warning('no settings for device of type %s', devtype)
+            return {}
 
         data = iface.GetSettings()
         ipv4conf = {}
@@ -257,7 +258,7 @@ class NetworkManagerProvider(object):
         iface = self._get_settings_of_type(NM_CONNECTION_TYPE_WIFI)
         if not iface:
             _log.warning('no wireless settings')
-            return None
+            return {}
 
         data = iface.GetSettings()
         wificonf = {}
@@ -305,6 +306,8 @@ class NetworkManagerProvider(object):
 
         service_type = iface['type']
 
+        state = props.State
+        _log.debug('device state: %s', state)
         if props.State == NM_DEVICE_STATE_ACTIVATED:
             iface['online'] = True
 
