@@ -24,8 +24,33 @@
      }
 
      validate_config = function() {
-         return true;
+
+         var no_errors = true;
+         var errors = [];
+
+         /* validate wifi password */
+         if ($("#wifi_psk_pass").val().length < 8) {
+             errors.push("WPA-PSK too short, needs at least 8 characters");
+             no_errors = false;
+         }
+
+         gen_alert = function(text) {
+             return '<div class="alert alert-danger" role="alert">' + text + '</div>';
+         }
+         if (no_errors == false) {
+             $("#modal_data").empty();
+             $('#modal_error').modal('show');
+             errors.forEach(function(entry) {
+                 console.log("entry: " + entry);
+                 var val = gen_alert(entry);
+                 console.log("val: " + val);
+
+                 $("#modal_data").append(val);
+             });
+         }
+         return no_errors;
      }
+
      $("#eth_ipv4_method").change(function() {
          fix_ipv4_enabled("eth");
      });
@@ -54,6 +79,24 @@
 {% end %}
 
 {% block body %}
+<div class="modal fade" id="modal_error" tabindex="-1"
+     role="dialog" aria-labelledby="modal_error_label"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modal_error_label">Configuration errors detected!</h4>
+            </div>
+            <div class="modal-body" id="modal_data">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div>
     <form method="post" id="form_config">
         <h3>System</h3>
