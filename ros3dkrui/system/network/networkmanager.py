@@ -108,6 +108,11 @@ NM_DEVICE_STATE_DISCONNECTED = 30
 NM_CONNECTION_TYPE_ETH = '802-3-ethernet'
 NM_CONNECTION_TYPE_WIFI = '802-11-wireless'
 
+NM_SECURITY_TYPE_WIFI = '802-11-wireless-security'
+NM_SECURITY_WIFI_KEY_MGMT = 'key-mgmt'
+NM_SECURITY_KEY_MGMT_WPA_PSK = 'wpa-psk'
+NM_SECURITY_WPA_PSK = 'psk'
+
 class NetworkManagerProvider(object):
 
     NM_SERVICE_NAME = 'org.freedesktop.NetworkManager'
@@ -201,6 +206,48 @@ class NetworkManagerProvider(object):
         }
         return wifi_info
 
+    def _get_wireless_conf(self, devpath):
+        """Dump wifi configuration. Produces a dict with keys:
+        - name - selected AP SSID
+        - security - none|wpa-psk|..
+        - wpa-psk - WPA PSK
+
+        or None if no wifi confguration is defined"""
+
+        settings = self._find_settings_of_type(NM_CONNECTION_TYPE_WIFI)
+
+        if len(settings) == 0:
+            _log.warning('no settings found')
+            return None
+
+        conf = settings[0]
+        _log.debug('settings: %s', conf)
+
+        siface, props = self._get_bus_iface(conf,
+                                            self.NM_CONNECTION_IFACE)
+        data = siface.GetSettings()
+
+        wificonf = {}
+
+        _log.debug('got wifi settings: %s', data)
+
+        ap = _array_to_string(data[NM_CONNECTION_TYPE_WIFI]['ssid'])
+        _log.debug('AP: %s', ap)
+
+        wificonf['name'] = ap
+
+        if data.has_key(NM_SECURITY_TYPE_WIFI):
+            security = siface.GetSecrets(NM_SECURITY_TYPE_WIFI)
+            _log.debug('security data: %s', security)
+            key = data[NM_SECURITY_TYPE_WIFI][NM_SECURITY_WIFI_KEY_MGMT]
+            wificonf['security'] = str(key)
+            if key == NM_SECURITY_KEY_MGMT_WPA_PSK:
+                wificonf['wpa-psk'] = security[NM_SECURITY_TYPE_WIFI][NM_SECURITY_WPA_PSK]
+                _log.debug('WPA PSK: %s', wificonf['wpa-psk'])
+
+        _log.debug('wifi conf: %s', wificonf)
+        return wificonf
+
     def _dump_device(self, dev, props):
         iface = {}
         devtype = props.DeviceType
@@ -214,6 +261,7 @@ class NetworkManagerProvider(object):
             iface['type'] = 'wireless'
             wireless, wprops = self._get_wireless_device(dev.object_path)
             iface['mac'] = str(wprops.HwAddress)
+            iface['wificonf'] = self._get_wireless_conf(dev.object_path)
         else:
             # skip all other interfaces
             return None
@@ -383,7 +431,7 @@ class NetworkManagerProvider(object):
             srvconf[srvtype]['ssid'] = _string_to_array(config['name'])
             if config['password']:
                 # setup WPA
-                srvconf[srvtype]['security'] = '802-11-wireless-security'
+                srvconf[srvtype]['security'] = NM_SECURITY_TYPE_WIFI
                 # suppor WPA-PSK only
                 sec = {
                     'key-mgmt': 'wpa-psk',

@@ -103,10 +103,17 @@ class SettingsHandler(tornado.web.RequestHandler):
                 wifi_netmask = None
                 wifi_gateway = None
 
+            if wireless['wificonf']:
+                wifi_ap = wireless['wificonf'].get('name', None)
+                wifi_psk = wireless['wificonf'].get('wpa-psk', None)
+            else:
+                wifi_ap = None
+                wifi_psk = None
+
             wireless_entry = [
-                dict(name='Access Point', value=None,
+                dict(name='Access Point', value=wifi_ap,
                      type='input', id='wifi_ap_name'),
-                dict(name='Password', value=None,
+                dict(name='WPA Password', value=wifi_psk,
                      type='password', id='wifi_psk_pass'),
                 dict(name='IPv4 Address', value=wifi_address,
                      type='input', id='wifi_ipv4_address'),
