@@ -334,9 +334,11 @@ class Application(tornado.web.Application):
                                           'templates')
         self.static_root = os.path.join(document_root,
                                         'static')
+        fonts_root = os.path.join(document_root, 'fonts')
         uris = [
             (r"/settings", SettingsHandler, dict(app=self)),
             (r"/status", MainHandler, dict(app=self)),
+            (r"/fonts/(.*)", tornado.web.StaticFileHandler, dict(path=fonts_root)),
             (r"/", MainHandler, dict(app=self)),
         ]
 
