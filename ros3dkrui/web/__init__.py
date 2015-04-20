@@ -206,7 +206,7 @@ class SettingsHandler(tornado.web.RequestHandler):
         config.set_system(rig)
         config.write()
 
-        # self.redirect('/?config_applied=1')
+        self.redirect('/?config_applied=1')
 
 
 class MainHandler(tornado.web.RequestHandler):
