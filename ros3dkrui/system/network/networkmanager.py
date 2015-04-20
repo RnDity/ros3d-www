@@ -206,6 +206,46 @@ class NetworkManagerProvider(object):
         }
         return wifi_info
 
+    def _get_settings_of_type(self, setting_type):
+        """Find settings of given type and return interface proxy"""
+        settings = self._find_settings_of_type(setting_type)
+
+        if len(settings) == 0:
+            _log.warning('no settings found')
+            return
+
+        conf = settings[0]
+        _log.debug('settings: %s', conf)
+
+        siface, props = self._get_bus_iface(conf,
+                                            self.NM_CONNECTION_IFACE)
+        return siface
+
+
+    def _get_ipv4_conf(self, devpath, devtype):
+        """Dump IPv4 configuration. Returns a dict with the same keys as
+        :_get_ipv4_data:"""
+
+        iface = self._get_settings_of_type(devtype)
+        if not iface:
+            _log.warning('no settings for device of type %s', devtype)
+
+        data = iface.GetSettings()
+        ipv4conf = {}
+
+        if data['ipv4']['method'] == 'auto':
+            ipv4conf['method'] = 'dhcp'
+        else:
+            ipv4conf['method'] = 'static'
+            if len(data['ipv4']['addresses']) > 1:
+                address = data['ipv4']['addresses'][0]
+                ipv4conf['address'] = _num_to_ip(address[0])
+                ipv4conf['netmask'] = _prefix_to_netmask(address[1])
+                ipv4conf['gateway'] = _num_to_ip(address[2])
+
+        _log.debug('ipv4 config for device %s', devpath)
+        return ipv4conf
+
     def _get_wireless_conf(self, devpath):
         """Dump wifi configuration. Produces a dict with keys:
         - name - selected AP SSID
@@ -214,19 +254,12 @@ class NetworkManagerProvider(object):
 
         or None if no wifi confguration is defined"""
 
-        settings = self._find_settings_of_type(NM_CONNECTION_TYPE_WIFI)
-
-        if len(settings) == 0:
-            _log.warning('no settings found')
+        iface = self._get_settings_of_type(NM_CONNECTION_TYPE_WIFI)
+        if not iface:
+            _log.warning('no wireless settings')
             return None
 
-        conf = settings[0]
-        _log.debug('settings: %s', conf)
-
-        siface, props = self._get_bus_iface(conf,
-                                            self.NM_CONNECTION_IFACE)
-        data = siface.GetSettings()
-
+        data = iface.GetSettings()
         wificonf = {}
 
         _log.debug('got wifi settings: %s', data)
@@ -237,7 +270,7 @@ class NetworkManagerProvider(object):
         wificonf['name'] = ap
 
         if data.has_key(NM_SECURITY_TYPE_WIFI):
-            security = siface.GetSecrets(NM_SECURITY_TYPE_WIFI)
+            security = iface.GetSecrets(NM_SECURITY_TYPE_WIFI)
             _log.debug('security data: %s', security)
             key = data[NM_SECURITY_TYPE_WIFI][NM_SECURITY_WIFI_KEY_MGMT]
             wificonf['security'] = str(key)
@@ -257,11 +290,13 @@ class NetworkManagerProvider(object):
             iface['type'] = 'wired'
             wired, wprops = self._get_wired_device(dev.object_path)
             iface['mac'] = str(wprops.HwAddress)
+            conn_type = NM_CONNECTION_TYPE_ETH
         elif devtype == NM_DEVICE_TYPE_WIFI:
             iface['type'] = 'wireless'
             wireless, wprops = self._get_wireless_device(dev.object_path)
             iface['mac'] = str(wprops.HwAddress)
             iface['wificonf'] = self._get_wireless_conf(dev.object_path)
+            conn_type = NM_CONNECTION_TYPE_WIFI
         else:
             # skip all other interfaces
             return None
@@ -294,6 +329,9 @@ class NetworkManagerProvider(object):
                 # interface
                 method = 'static'
             iface['ipv4']['method'] = method
+
+        iface['ipv4conf'] = self._get_ipv4_conf(dev.object_path,
+                                                conn_type)
 
         return iface
 
