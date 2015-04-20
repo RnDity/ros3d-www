@@ -107,7 +107,7 @@ class SettingsHandler(tornado.web.RequestHandler):
                 dict(name='Access Point', value=None,
                      type='input', id='wifi_ap_name'),
                 dict(name='Password', value=None,
-                     type='input', id='wifi_psk_pass'),
+                     type='password', id='wifi_psk_pass'),
                 dict(name='IPv4 Address', value=wifi_address,
                      type='input', id='wifi_ipv4_address'),
                 dict(name='IPv4 Mask', value=wifi_netmask,
