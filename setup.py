@@ -45,10 +45,6 @@ setup(
     author='OpenRnD',
     author_email='ros3d@open-rnd.pl',
     license='closed',
-    entry_points = {
-        'console_scripts': [
-            'ros3d-kr-ui = ros3dkrui.cmd:main'
-        ]
-    },
-    data_files=find_data('web-data')
+    data_files=find_data('web-data'),
+    scripts=['ros3d-kr-ui']
 )
