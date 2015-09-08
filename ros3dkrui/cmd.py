@@ -23,7 +23,7 @@ def parse_arguments():
                         help='Configuration file path, ' \
                         'default: {}'.format(ConfigLoader.CONFIG_PATH),
                         default=None)
-
+    parser.add_argument('-i', '--ia', help="Set if running on Image Analyser", action="store_true")
     parser.add_argument('document_root', help='Document root')
     return parser.parse_args()
 
@@ -45,7 +45,12 @@ def main():
 
     logging.debug('configuration at: %s', ConfigLoader.CONFIG_PATH)
 
-    app = Application(opts.document_root)
+    if opts.ia:
+        logging.error('Image Analyzer mode')
+        app = Application(opts.document_root, mode = Application.MODE_AO)
+    else:
+        app = Application(opts.document_root)
+
     logging.debug('listening on port %d', opts.http_port)
     app.listen(opts.http_port)
 

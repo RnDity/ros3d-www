@@ -127,7 +127,8 @@ class SettingsHandler(tornado.web.RequestHandler):
             wireless_entry = [
                 dict(name='Status', value='No device')
             ]
-        network_entries['wireless'] = wireless_entry
+        if self.app.mode == self.app.MODE_KR:
+            network_entries['wireless'] = wireless_entry
 
         self.write(tmpl.generate(system_entries=system_entries,
                                  network_entries=network_entries,
@@ -197,8 +198,9 @@ class SettingsHandler(tornado.web.RequestHandler):
         net = network_provider()
         net_config = {
             'wired': [wired_config],
-            'wireless': [wireless_config]
         }
+        if self.app.mode == self.app.MODE_KR:
+            net_config['wireless'] = [wireless_config]
 
         net.set_config(net_config)
 
@@ -229,10 +231,13 @@ class MainHandler(tornado.web.RequestHandler):
 
     def _net(self):
         data = network_provider().list_interfaces()
+
         network_entries = {
-            'wired': [],
-            'wireless': []
+           'wired': []
         }
+        if self.app.mode == self.app.MODE_KR:
+            network_entries['wireless'] = []
+
         # we're intersted in wired and wireless interfaces only
         for itype in network_entries.keys():
             if itype not in data:
@@ -325,9 +330,11 @@ class MainHandler(tornado.web.RequestHandler):
 
 
 class Application(tornado.web.Application):
+    MODE_KR = 1
+    MODE_AO = 2
 
-    def __init__(self, document_root):
-
+    def __init__(self, document_root, mode = MODE_KR):
+        self.mode = mode
         self.template_root = os.path.join(document_root,
                                           'templates')
         self.static_root = os.path.join(document_root,
