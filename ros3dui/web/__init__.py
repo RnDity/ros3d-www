@@ -3,8 +3,8 @@
 #
 
 from __future__ import absolute_import
-from ros3dkrui.system.network import network_provider
-from ros3dkrui.system.util import ConfigLoader
+from ros3dui.system.network import network_provider
+from ros3dui.system.util import ConfigLoader
 import tornado.web
 import tornado.template
 from tornado.escape import parse_qs_bytes
@@ -316,7 +316,7 @@ class MainHandler(tornado.web.RequestHandler):
             rig = 'None'
 
         system_entries= [
-            dict(name='Hostname', value='ros3d-kr'),
+            dict(name='Hostname', value='ros3d-ui'),
             dict(name='Assigned Rig', value=rig)
         ]
         system_entries.append(dict(name='Uptime', value=self._uptime()))

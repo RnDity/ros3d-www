@@ -3,7 +3,7 @@
 # Copyright (c) 2015, Open-RnD Sp. z o.o.  All rights reserved.
 #
 
-from ros3dkrui import cmd
+from ros3dui import cmd
 
 if __name__ == '__main__':
     cmd.main()

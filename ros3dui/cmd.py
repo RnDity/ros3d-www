@@ -2,8 +2,8 @@
 # Copyright (c) 2015, Open-RnD Sp. z o.o.  All rights reserved.
 #
 from __future__ import absolute_import
-from ros3dkrui.web import Application
-from ros3dkrui.system.util import ConfigLoader
+from ros3dui.web import Application
+from ros3dui.system.util import ConfigLoader
 from tornado.ioloop import IOLoop
 import logging
 import argparse

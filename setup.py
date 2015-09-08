@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 import os
 import os.path
 
-NAME='ros3dkrui'
+NAME='ros3dui'
 VERSION = '0.1'
 
 install_requires = ['tornado']
@@ -38,7 +38,7 @@ setup(
     name=NAME,
     version=VERSION,
     packages=find_packages(exclude=['tests', 'tests.*']),
-    description="Ros3D KR Web UI",
+    description="Ros3D Web UI",
     long_description=read("README.rst"),
     install_requires=install_requires,
     tests_require=tests_require,
@@ -46,5 +46,5 @@ setup(
     author_email='ros3d@open-rnd.pl',
     license='closed',
     data_files=find_data('web-data'),
-    scripts=['ros3d-kr-ui']
+    scripts=['ros3d-ui']
 )

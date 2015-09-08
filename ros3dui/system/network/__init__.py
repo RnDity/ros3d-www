@@ -14,11 +14,11 @@ def network_provider(provider_type=PROVIDER_NETWORKMANAGER):
     provider = None
     if provider_type == PROVIDER_CONNMAN:
         _log.debug('using connman provider')
-        from ros3dkrui.system.network.connman import get_connman_provider
+        from ros3dui.system.network.connman import get_connman_provider
         provider = get_connman_provider()
     elif provider_type == PROVIDER_NETWORKMANAGER:
         _log.debug('using networkmanager provider')
-        from ros3dkrui.system.network.networkmanager import get_networkmanager_provider
+        from ros3dui.system.network.networkmanager import get_networkmanager_provider
         provider = get_networkmanager_provider()
     else:
         raise RuntimeError('Unknown provider type: %d' % (provider_type))
