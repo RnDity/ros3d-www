@@ -48,6 +48,11 @@ class SettingsHandler(tornado.web.RequestHandler):
             dict(name='Assigned Rig', value=rig, type='input', id='assigned_rig')
         ]
 
+        if self.app.mode == self.app.MODE_KR:
+            aladin = 'Off'
+            system_entries.append(dict(name='Aladin control mode', value=aladin,
+                type='dropdown', id='controll_aladin', options = ['On', 'Off']))
+
         net = network_provider().list_interfaces()
         wired = net['wired'][0]
         if bool(net.get('wireless', [])):
