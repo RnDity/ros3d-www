@@ -34,7 +34,7 @@ def main():
     level = logging.INFO
     if opts.debug:
         level = logging.DEBUG
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=level)
 
     if opts.config_path:
         ConfigLoader.set_config_location(opts.config_path)
