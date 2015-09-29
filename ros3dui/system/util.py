@@ -49,6 +49,15 @@ class ConfigLoader(object):
             self.config.add_section('common')
         self.config.set('common', 'system', value)
 
+    def get_aladin(self):
+        """Get Aladin control mode"""
+        return self._get('common', 'aladin', '')
+
+    def set_aladin(self, value):
+        if not self.config.has_section('common'):
+            self.config.add_section('common')
+        self.config.set('common', 'aladin', value)
+
     def write(self):
         import tempfile
         import shutil
