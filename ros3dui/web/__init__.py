@@ -54,7 +54,7 @@ class SystemSettingsHandler(tornado.web.RequestHandler):
                 type='dropdown', id='controll_aladin', options = ['On', 'Off']))
 
         self.write(tmpl.generate(system_entries=system_entries,
-                                 system_configuration_active=True,
+                                 configuration_active=True,
                                  widget_render=partial(widget_render, ldr)))
 
 
@@ -182,7 +182,7 @@ class NetworkSettingsHandler(tornado.web.RequestHandler):
             network_entries['wireless'] = wireless_entry
 
         self.write(tmpl.generate(network_entries=network_entries,
-                                 network_configuration_active=True,
+                                 configuration_active=True,
                                  widget_render=partial(widget_render, ldr)))
 
 

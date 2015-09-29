@@ -32,15 +32,18 @@
                           {% end %}
                           ><a href="/status">System</a>
                       </li>
-                      <li {% if globals().get('network_configuration_active', False) %}
-                          class="active"
-                          {% end %}>
-                          <a href="/network_settings">Network configuration</a>
-                      </li>
-                      <li {% if globals().get('system_configuration_active', False) %}
-                          class="active"
-                          {% end %}>
-                          <a href="/system_settings">System configuration</a>
+                      <li {% if globals().get('configuration_active', False) %}
+                          class="active dropdown"
+                          {% else %}
+                          class="dropdown"
+                          {% end %}
+                          >
+                      <a class="dropdown-toggle" data-toggle="dropdown" href="#">Settings
+                          <span class="caret"></span></a>
+                      <ul class="dropdown-menu">
+                          <li><a href="/system_settings">System</a></li>
+                          <li><a href="/network_settings">Network</a></li>
+                      </ul>
                       </li>
                   </ul>
               </div><!--/.nav-collapse -->
