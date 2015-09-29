@@ -32,13 +32,13 @@ def widget_render(ldr, widget):
     return tmpl.generate(entry=widget)
 
 
-class SettingsHandler(tornado.web.RequestHandler):
+class SystemSettingsHandler(tornado.web.RequestHandler):
     def initialize(self, app):
         self.app = app
 
     def get(self):
         ldr = self.app.get_template_loader()
-        tmpl = ldr.load('settings.html')
+        tmpl = ldr.load('system_settings.html')
 
         config = ConfigLoader()
         rig = config.get_system()
@@ -53,6 +53,52 @@ class SettingsHandler(tornado.web.RequestHandler):
             system_entries.append(dict(name='Aladin control mode', value=aladin,
                 type='dropdown', id='controll_aladin', options = ['On', 'Off']))
 
+        self.write(tmpl.generate(system_entries=system_entries,
+                                 system_configuration_active=True,
+                                 widget_render=partial(widget_render, ldr)))
+
+
+    def post(self):
+        _log.debug('configuration set: %s' , self.request)
+        _log.debug('body: %s', self.request.body)
+
+        # parse request
+        arguments = parse_qs_bytes(self.request.body, keep_blank_values=False)
+        _log.debug('arguments: %s', arguments)
+
+        if arguments.has_key('assigned_rig') and arguments['assigned_rig'][0]:
+            rig = arguments['assigned_rig'][0]
+            _log.debug('set assigned rig to: %s', rig)
+        else:
+            rig = None
+
+        if (self.app.mode == self.app.MODE_KR) and arguments['controll_aladin'][0]:
+            aladin = arguments['controll_aladin'][0]
+
+        def get_arg(arg):
+            if arguments.has_key(arg):
+                return arguments[arg][0]
+            else:
+                return None
+
+
+        config = ConfigLoader()
+        config.set_system(rig)
+        config.set_aladin(aladin)
+        config.write()
+
+        self.redirect('/?config_applied=1')
+
+
+class NetworkSettingsHandler(tornado.web.RequestHandler):
+    def initialize(self, app):
+        self.app = app
+
+    def get(self):
+        ldr = self.app.get_template_loader()
+        tmpl = ldr.load('network_settings.html')
+
+        config = ConfigLoader()
         net = network_provider().list_interfaces()
         wired = net['wired'][0]
         if bool(net.get('wireless', [])):
@@ -135,9 +181,8 @@ class SettingsHandler(tornado.web.RequestHandler):
         if self.app.mode == self.app.MODE_KR:
             network_entries['wireless'] = wireless_entry
 
-        self.write(tmpl.generate(system_entries=system_entries,
-                                 network_entries=network_entries,
-                                 configuration_active=True,
+        self.write(tmpl.generate(network_entries=network_entries,
+                                 network_configuration_active=True,
                                  widget_render=partial(widget_render, ldr)))
 
 
@@ -148,15 +193,6 @@ class SettingsHandler(tornado.web.RequestHandler):
         # parse request
         arguments = parse_qs_bytes(self.request.body, keep_blank_values=False)
         _log.debug('arguments: %s', arguments)
-
-        if arguments.has_key('assigned_rig') and arguments['assigned_rig'][0]:
-            rig = arguments['assigned_rig'][0]
-            _log.debug('set assigned rig to: %s', rig)
-        else:
-            rig = None
-
-        if (self.app.mode == self.app.MODE_KR) and arguments['controll_aladin'][0]:
-            aladin = arguments['controll_aladin'][0]
 
         wired_config = {}
         wireless_config = {}
@@ -213,8 +249,6 @@ class SettingsHandler(tornado.web.RequestHandler):
         net.set_config(net_config)
 
         config = ConfigLoader()
-        config.set_system(rig)
-        config.set_aladin(aladin)
         config.write()
 
         self.redirect('/?config_applied=1')
@@ -355,7 +389,8 @@ class Application(tornado.web.Application):
                                         'static')
         fonts_root = os.path.join(document_root, 'fonts')
         uris = [
-            (r"/settings", SettingsHandler, dict(app=self)),
+            (r"/network_settings", NetworkSettingsHandler, dict(app=self)),
+            (r"/system_settings", SystemSettingsHandler, dict(app=self)),
             (r"/status", MainHandler, dict(app=self)),
             (r"/fonts/(.*)", tornado.web.StaticFileHandler, dict(path=fonts_root)),
             (r"/", MainHandler, dict(app=self)),

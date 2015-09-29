@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+
+{% block body %}
+<div class="modal fade" id="modal_error" tabindex="-1"
+     role="dialog" aria-labelledby="modal_error_label"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modal_error_label">Configuration errors detected!</h4>
+            </div>
+            <div class="modal-body" id="modal_data">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <form method="post" id="form_config">
+        <h3>System</h3>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table">
+                        <tbody>
+                            {% for entry in system_entries %}
+                            <tr>
+                                <td class="col-md-6">{{ entry['name'] }}</td>
+                                <td>
+                                    {% raw widget_render(entry) %}
+                                </td>
+                            </tr>
+                            {% end %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <button id="btn_config_submit" class="btn btn-primary">Apply</button>
+        <button id="btn_config_cancel" class="btn">Cancel</button>
+    </form>
+</div>
+{% end %}

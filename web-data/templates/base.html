@@ -32,10 +32,15 @@
                           {% end %}
                           ><a href="/status">System</a>
                       </li>
-                      <li {% if globals().get('configuration_active', False) %}
+                      <li {% if globals().get('network_configuration_active', False) %}
                           class="active"
                           {% end %}>
-                          <a href="/settings">Configuration</a>
+                          <a href="/network_settings">Network configuration</a>
+                      </li>
+                      <li {% if globals().get('system_configuration_active', False) %}
+                          class="active"
+                          {% end %}>
+                          <a href="/system_settings">System configuration</a>
                       </li>
                   </ul>
               </div><!--/.nav-collapse -->
