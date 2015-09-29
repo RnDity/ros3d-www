@@ -49,7 +49,7 @@ class SettingsHandler(tornado.web.RequestHandler):
         ]
 
         if self.app.mode == self.app.MODE_KR:
-            aladin = 'Off'
+            aladin = config.get_aladin()
             system_entries.append(dict(name='Aladin control mode', value=aladin,
                 type='dropdown', id='controll_aladin', options = ['On', 'Off']))
 
@@ -155,6 +155,9 @@ class SettingsHandler(tornado.web.RequestHandler):
         else:
             rig = None
 
+        if (self.app.mode == self.app.MODE_KR) and arguments['controll_aladin'][0]:
+            aladin = arguments['controll_aladin'][0]
+
         wired_config = {}
         wireless_config = {}
 
@@ -211,6 +214,7 @@ class SettingsHandler(tornado.web.RequestHandler):
 
         config = ConfigLoader()
         config.set_system(rig)
+        config.set_aladin(aladin)
         config.write()
 
         self.redirect('/?config_applied=1')
@@ -320,8 +324,13 @@ class MainHandler(tornado.web.RequestHandler):
         if not rig:
             rig = 'None'
 
+        aladin = config.get_aladin()
+        if not aladin:
+            aladin = 'None'
+
         system_entries= [
             dict(name='Hostname', value='ros3d-ui'),
+            dict(name='Aladin control mode', value=aladin),
             dict(name='Assigned Rig', value=rig)
         ]
         system_entries.append(dict(name='Uptime', value=self._uptime()))
