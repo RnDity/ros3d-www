@@ -84,7 +84,8 @@ class SystemSettingsHandler(tornado.web.RequestHandler):
 
         config = ConfigLoader()
         config.set_system(rig)
-        config.set_aladin(aladin)
+        if self.app.mode == self.app.MODE_KR:
+            config.set_aladin(aladin)
         config.write()
 
         self.redirect('/?config_applied=1')
