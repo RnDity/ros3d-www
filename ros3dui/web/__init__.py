@@ -368,7 +368,7 @@ class MainHandler(tornado.web.RequestHandler):
             aladin = config.get_aladin()
             if not aladin:
                 aladin = 'None'
-            system_entries.append(dict(name='Aladin control mode', value=aladin))
+            system_entries.append(dict(name='Aladin Control Mode', value=aladin))
 
         system_entries.append(dict(name='Uptime', value=self._uptime()))
         network_entries = self._net()
