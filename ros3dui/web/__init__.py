@@ -359,15 +359,17 @@ class MainHandler(tornado.web.RequestHandler):
         if not rig:
             rig = 'None'
 
-        aladin = config.get_aladin()
-        if not aladin:
-            aladin = 'None'
-
         system_entries= [
             dict(name='Hostname', value='ros3d-ui'),
-            dict(name='Aladin control mode', value=aladin),
             dict(name='Assigned Rig', value=rig)
         ]
+
+        if self.app.mode == Application.MODE_KR:
+            aladin = config.get_aladin()
+            if not aladin:
+                aladin = 'None'
+            system_entries.append(dict(name='Aladin control mode', value=aladin))
+
         system_entries.append(dict(name='Uptime', value=self._uptime()))
         network_entries = self._net()
 
