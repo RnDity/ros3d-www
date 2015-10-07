@@ -10,6 +10,7 @@ import tornado.template
 from tornado.escape import parse_qs_bytes
 import logging
 import os.path
+import os
 from functools import partial
 
 
@@ -359,8 +360,9 @@ class MainHandler(tornado.web.RequestHandler):
         if not rig:
             rig = 'None'
 
+        hostname = os.environ.get('HOSTNAME', 'ros3d')
         system_entries= [
-            dict(name='Hostname', value='ros3d-ui'),
+            dict(name='Hostname', value=hostname),
             dict(name='Assigned Rig', value=rig)
         ]
 
