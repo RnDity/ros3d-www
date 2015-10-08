@@ -51,9 +51,11 @@ class ConfigLoader(object):
 
     def get_aladin(self):
         """Get Aladin control mode"""
-        return self._get('common', 'aladin', '')
+        return self._get('common', 'aladin', False)
 
     def set_aladin(self, value):
+        if not isinstance(value, bool):
+            raise RuntimeError('Expected a boolean True/False')
         if not self.config.has_section('common'):
             self.config.add_section('common')
         self.config.set('common', 'aladin', value)
