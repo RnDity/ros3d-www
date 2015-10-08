@@ -51,8 +51,11 @@ class SystemSettingsHandler(tornado.web.RequestHandler):
 
         if self.app.mode == self.app.MODE_KR:
             aladin = config.get_aladin()
-            system_entries.append(dict(name='Aladin control mode', value=aladin,
-                type='dropdown', id='controll_aladin', options = ['On', 'Off']))
+            system_entries.append(dict(name='Aladin control mode',
+                                       value='On' if aladin else 'Off',
+                                       type='dropdown',
+                                       id='controll_aladin',
+                                       options=['On', 'Off']))
 
         self.write(tmpl.generate(system_entries=system_entries,
                                  configuration_active=True,
@@ -74,14 +77,15 @@ class SystemSettingsHandler(tornado.web.RequestHandler):
             rig = None
 
         if (self.app.mode == self.app.MODE_KR) and arguments['controll_aladin'][0]:
-            aladin = arguments['controll_aladin'][0]
+            aladin = False
+            if arguments['controll_aladin'][0] == 'On':
+                aladin = True
 
         def get_arg(arg):
             if arguments.has_key(arg):
                 return arguments[arg][0]
             else:
                 return None
-
 
         config = ConfigLoader()
         config.set_system(rig)
