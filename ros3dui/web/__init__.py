@@ -34,6 +34,12 @@ def widget_render(ldr, widget):
 
 
 class SystemSettingsHandler(tornado.web.RequestHandler):
+
+    aladin_modes_get = {'CONTROL_READ':'Control read',
+            'CONTROL_PARTIAL':'Control partial',
+            'CONTROL_FULL':'Control full'}
+    aladin_modes_post = {v: k for k, v in aladin_modes_get.items()}
+
     def initialize(self, app):
         self.app = app
 
@@ -48,14 +54,13 @@ class SystemSettingsHandler(tornado.web.RequestHandler):
         system_entries = [
             dict(name='Assigned Rig', value=rig, type='input', id='assigned_rig')
         ]
-
         if self.app.mode == self.app.MODE_KR:
             aladin = config.get_aladin()
             system_entries.append(dict(name='Aladin control mode',
-                                       value='On' if aladin else 'Off',
+                                       value=SystemSettingsHandler.aladin_modes_get[aladin],
                                        type='dropdown',
                                        id='controll_aladin',
-                                       options=['On', 'Off']))
+                                       options=list(SystemSettingsHandler.aladin_modes_get.values())))
 
         self.write(tmpl.generate(system_entries=system_entries,
                                  configuration_active=True,
@@ -77,9 +82,7 @@ class SystemSettingsHandler(tornado.web.RequestHandler):
             rig = None
 
         if (self.app.mode == self.app.MODE_KR) and arguments['controll_aladin'][0]:
-            aladin = False
-            if arguments['controll_aladin'][0] == 'On':
-                aladin = True
+            aladin = self.aladin_modes_post[arguments['controll_aladin'][0]]
 
         def get_arg(arg):
             if arguments.has_key(arg):
@@ -374,7 +377,7 @@ class MainHandler(tornado.web.RequestHandler):
             aladin = config.get_aladin()
             if not aladin:
                 aladin = 'None'
-            system_entries.append(dict(name='Aladin Control Mode', value=aladin))
+            system_entries.append(dict(name='Aladin Control Mode', value=SystemSettingsHandler.aladin_modes_get[aladin]))
 
         system_entries.append(dict(name='Uptime', value=self._uptime()))
         network_entries = self._net()
