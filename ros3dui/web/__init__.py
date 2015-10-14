@@ -4,6 +4,7 @@
 
 from __future__ import absolute_import
 from ros3dui.system.network import network_provider
+from ros3dui.system.camera import get_camera_manager
 from ros3dui.system.util import ConfigLoader
 import tornado.web
 import tornado.template
@@ -379,12 +380,26 @@ class MainHandler(tornado.web.RequestHandler):
 
         system_entries.append(dict(name='Uptime', value=self._uptime()))
         network_entries = self._net()
-
+        camera_entries = [
+                dict(name='Cam 1', value='Inactive'),
+                dict(name='Cam 2', value='Active')
+                ]
+        camera_entries = self._cam()
         self.write(tmpl.generate(system_entries=system_entries,
                                  network_entries=network_entries,
+                                 camera_entries=camera_entries,
                                  config_applied=config_applied,
                                  system_active=True,
                                  widget_render=partial(widget_render, ldr)))
+
+    def _cam(self):
+        camera_data = get_camera_manager().get_details()
+        entries = {}
+        for idx, camera in enumerate(camera_data):
+            name = 'Camera ' + str(idx+1)
+            entries[name] = []
+            entries[name].append(camera)
+        return entries
 
 
 class Application(tornado.web.Application):

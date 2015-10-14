@@ -44,6 +44,28 @@
         </div>
     </div>
 
+    <h3>Cameras</h3>
+    <div class="container">
+        {% for name in camera_entries.keys() %}
+        {% if camera_entries[name] %}
+        <div class="row">
+            <h4>{{ name.capitalize() }}</h4>
+            <div class="col-md-6">
+                <table class="table">
+                    <tbody>
+                        {% for entry in camera_entries[name] %}
+                        <tr>
+                            <td class="col-md-6">{{ entry['name'] }}</td>
+                            <td>{% raw widget_render(entry) %}</td>
+                        </tr>
+                        {% end %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% end %}
+        {% end %}
+    </div>
     <h3>Network</h3>
     <div class="container">
         {% for itype in network_entries.keys() %}
