@@ -11,6 +11,11 @@ import logging
 
 _log = logging.getLogger(__name__)
 
+
+class CameraManagerError(Exception):
+        pass
+
+
 class PropertiesWrapper(object):
     def __init__(self, busobj):
         _log.debug('properties wrapper for %s @ %s',
@@ -32,8 +37,10 @@ class CameraManager(object):
 
     def __init__(self):
         self.bus = dbus.SystemBus()
+
+    def _connect(self):
         cmobj = self.bus.get_object(self.CM_SERVICE_NAME,
-                                    self.CM_SERVICE_PATH)
+                self.CM_SERVICE_PATH)
         self.cm = dbus.Interface(cmobj, self.CM_MANAGER_IFACE)
 
     def _get_bus_iface(self, devpath, iface):
@@ -51,15 +58,20 @@ class CameraManager(object):
                                    self.CM_DEVICE_IFACE)
 
     def get_details(self):
-        devices = self.cm.listCameras()
-        _log.debug('devices: %s', devices)
-        camera_data = []
-        for devpath in devices:
-            dev, props = self._get_device(devpath)
-            _log.debug('dev id: %s', props.Id)
-            _log.debug('device state: %d', props.State)
-            cam = dict(name=props.Id, value=props.State)
-            camera_data.append(cam)
+        try:
+            self._connect()
+            devices = self.cm.listCameras()
+            _log.debug('devices: %s', devices)
+            camera_data = []
+            for devpath in devices:
+                dev, props = self._get_device(devpath)
+                _log.debug('dev id: %s', props.Id)
+                _log.debug('device state: %d', props.State)
+                cam = dict(name=props.Id, value=props.State)
+                camera_data.append(cam)
+        except dbus.exceptions.DBusException, error:
+            _log.error('camera controller service unavaialble, error: %s', error)
+            raise CameraManagerError('Camera Controller service unavailable')
         return camera_data
 
 def get_camera_manager():

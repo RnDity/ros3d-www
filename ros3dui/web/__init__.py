@@ -4,7 +4,7 @@
 
 from __future__ import absolute_import
 from ros3dui.system.network import network_provider
-from ros3dui.system.camera import get_camera_manager
+from ros3dui.system.camera import get_camera_manager, CameraManagerError
 from ros3dui.system.util import ConfigLoader
 import tornado.web
 import tornado.template
@@ -13,7 +13,6 @@ import logging
 import os.path
 import os
 from functools import partial
-
 
 _log = logging.getLogger(__name__)
 
@@ -393,12 +392,17 @@ class MainHandler(tornado.web.RequestHandler):
                                  widget_render=partial(widget_render, ldr)))
 
     def _cam(self):
-        camera_data = get_camera_manager().get_details()
         entries = {}
-        for idx, camera in enumerate(camera_data):
-            name = 'Camera ' + str(idx+1)
-            entries[name] = []
-            entries[name].append(camera)
+        try:
+            camera_data = get_camera_manager().get_details()
+        except CameraManagerError:
+            entries['Error']= [dict(name='controller service unavaialble',
+                value='')]
+        else:
+            for idx, camera in enumerate(camera_data):
+                name = 'Camera ' + str(idx+1)
+                entries[name] = []
+                entries[name].append(camera)
         return entries
 
 
