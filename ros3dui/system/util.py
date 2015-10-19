@@ -47,6 +47,8 @@ class ConfigLoader(object):
     def set_system(self, value):
         if not self.config.has_section('common'):
             self.config.add_section('common')
+        if value == None:
+            value = ''
         self.config.set('common', 'system', value)
 
     def get_aladin(self):
