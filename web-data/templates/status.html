@@ -66,6 +66,7 @@
         {% end %}
         {% end %}
     </div>
+
     <h3>Network</h3>
     <div class="container">
         {% for itype in network_entries.keys() %}
@@ -88,6 +89,26 @@
         {% end %}
         {% end %}
     </div>
-    
+
+    <h3>Reboot</h3>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td class="col-md-6">Reboot</td>
+                            <td>
+                                <form action="reboot">
+                                    <button id="btn_config_submit" class="btn btn-primary">Apply</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
+
 {% end %}

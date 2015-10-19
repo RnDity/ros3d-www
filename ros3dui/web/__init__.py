@@ -13,6 +13,7 @@ import logging
 import os.path
 import os
 from functools import partial
+from subprocess import call
 
 _log = logging.getLogger(__name__)
 
@@ -406,6 +407,16 @@ class MainHandler(tornado.web.RequestHandler):
         return entries
 
 
+class RebootHandler(tornado.web.RequestHandler):
+    def initialize(self, app):
+        self.app = app
+
+    def get(self):
+        _log.debug("get, reboot request: %r", self.request)
+        call(["reboot", "now"])
+        self.redirect('/')
+
+
 class Application(tornado.web.Application):
     MODE_KR = 1
     MODE_AO = 2
@@ -421,6 +432,7 @@ class Application(tornado.web.Application):
             (r"/network_settings", NetworkSettingsHandler, dict(app=self)),
             (r"/system_settings", SystemSettingsHandler, dict(app=self)),
             (r"/status", MainHandler, dict(app=self)),
+            (r"/reboot", RebootHandler, dict(app=self)),
             (r"/fonts/(.*)", tornado.web.StaticFileHandler, dict(path=fonts_root)),
             (r"/", MainHandler, dict(app=self)),
         ]
