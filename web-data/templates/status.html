@@ -1,9 +1,35 @@
 {% extends "base.html" %}
 
 {% block head %}
+{% if reboot_applied == True %}
+<script>
+function check(){
+    xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("GET", "/", false);
+    xmlhttp.send(null)
+    return xmlhttp.status;
+}
+function verify(){
+    try{
+        status = check();
+    }
+    catch(e){
+        status = 404;
+        setTimeout(verify, 1000);
+    }
+    if (status == 200){
+        window.location.replace("/");
+    }
+    return status;
+}
+$(function(){
+    setTimeout(verify, 5000);
+});
+</script>
+{% end %}
 <script type="text/javascript">
  window.onload = function() {
-     $("#config_applied_alert").on("closed.bs.alert", function () {
+     $("#applied_alert").on("closed.bs.alert", function () {
          /* remove ?config_applied on close */
          location.href = location.toString().replace(location.search,
                                                      "");
@@ -14,7 +40,7 @@
 
 {% block alerts %}
 {% if config_applied == True %}
-<div id="config_applied_alert" class="alert alert-success"
+<div id="applied_alert" class="alert alert-success"
      style="margin-top: 20px;" role="alert">
     Configuration applied!
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -25,6 +51,13 @@
 {% end %}
 
 {% block body %}
+{% if reboot_applied == True %}
+<div id="applied_alert" class="alert alert-success"
+     style="margin-top: 20px;" role="alert">
+    Rebooting...
+</div>
+{% else %}
+
 <div>
     <h3>Status</h3>
     <div class="container">
@@ -111,4 +144,5 @@
     </div>
 </div>
 
+{% end %}
 {% end %}

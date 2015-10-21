@@ -14,6 +14,7 @@ import os.path
 import os
 from functools import partial
 from subprocess import call
+from threading import Timer
 
 _log = logging.getLogger(__name__)
 
@@ -360,6 +361,10 @@ class MainHandler(tornado.web.RequestHandler):
         if config_applied == '1':
             config_applied = True
 
+        reboot_applied = self.get_argument('reboot_applied', False)
+        if reboot_applied == '1':
+            reboot_applied = True
+
         ldr = self.app.get_template_loader()
         tmpl = ldr.load('status.html')
 
@@ -389,6 +394,7 @@ class MainHandler(tornado.web.RequestHandler):
                                  network_entries=network_entries,
                                  camera_entries=camera_entries,
                                  config_applied=config_applied,
+                                 reboot_applied=reboot_applied,
                                  system_active=True,
                                  widget_render=partial(widget_render, ldr)))
 
@@ -413,9 +419,13 @@ class RebootHandler(tornado.web.RequestHandler):
 
     def get(self):
         _log.debug("get, reboot request: %r", self.request)
-        call(["reboot", "now"])
-        self.redirect('/')
+        t = Timer(1, self.reboot)
+        t.start()
+        self.redirect('/?reboot_applied=1')
 
+    def reboot(self):
+
+        call(["reboot", "now"])
 
 class Application(tornado.web.Application):
     MODE_KR = 1
