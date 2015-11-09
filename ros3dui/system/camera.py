@@ -37,6 +37,8 @@ class CameraManager(object):
 
     def __init__(self):
         self.bus = dbus.SystemBus()
+        # proxy to camera controller iface
+        self.cm = None
 
     def _connect(self):
         cmobj = self.bus.get_object(self.CM_SERVICE_NAME,
@@ -60,6 +62,8 @@ class CameraManager(object):
     def get_details(self):
         try:
             self._connect()
+            assert self.cm != None
+
             devices = self.cm.listCameras()
             _log.debug('devices: %s', devices)
             camera_data = []
