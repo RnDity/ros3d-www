@@ -6,6 +6,7 @@ from __future__ import absolute_import
 from ros3dui.system.network import network_provider
 from ros3dui.system.camera import get_camera_manager, CameraManagerError
 from ros3dui.system.util import ConfigLoader
+from ros3dui.system.services import ServiceReloader
 import tornado.web
 import tornado.template
 from tornado.escape import parse_qs_bytes
@@ -92,11 +93,27 @@ class SystemSettingsHandler(tornado.web.RequestHandler):
             else:
                 return None
 
+        # services in need of reload
+        need_reload = []
+
         config = ConfigLoader()
-        config.set_system(rig)
+        if rig != config.get_system():
+            config.set_system(rig)
+            # reload controller service
+            need_reload.append(ServiceReloader.SERVICE_CONTROLLER)
+
         if self.app.mode == self.app.MODE_KR:
-            config.set_aladin(aladin)
+            if aladin != config.get_aladin():
+                config.set_aladin(aladin)
+                need_reload.append(ServiceReloader.SERVICE_SERVO)
+
+        # update configuration file
         config.write()
+
+        if need_reload:
+            _log.info('services needing reload: %s', need_reload)
+            ServiceReloader.reload(need_reload)
+            _log.info('reload complete')
 
         self.redirect('/?config_applied=1')
 
