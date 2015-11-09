@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+# Copyright (c) 2015, Open-RnD Sp. z o.o.  All rights reserved.
+#
+# Example helper for reloading services
+
+for service in $*; do
+    echo "-- Restarting service $service"
+
+    # example:
+    # systemctl restart ros3d-service-$service
+done

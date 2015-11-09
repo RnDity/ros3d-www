@@ -45,6 +45,6 @@ setup(
     author='OpenRnD',
     author_email='ros3d@open-rnd.pl',
     license='closed',
-    data_files=find_data('web-data'),
+    data_files=find_data('web-data') + ['ros3d-ui-service-reload'],
     scripts=['ros3d-ui']
 )
