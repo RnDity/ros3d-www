@@ -393,7 +393,7 @@ class NetworkManagerProvider(object):
         def _match_type(path):
             setting, props = self._get_bus_iface(path, self.NM_CONNECTION_IFACE)
             data = setting.GetSettings()
-            _log.debug('check setting with data %s', data)
+            #_log.debug('check setting with data %s', data)
             if data['connection']['type'] == service_type:
                 return True
             return False
