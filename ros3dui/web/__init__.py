@@ -407,10 +407,13 @@ class MainHandler(tornado.web.RequestHandler):
             entries['Error']= [dict(name='Controller service unavailable',
                 value='')]
         else:
-            for idx, camera in enumerate(camera_data):
-                name = 'Camera ' + str(idx+1)
-                entries[name] = []
-                entries[name].append(camera)
+            if not camera_data:
+                entries['Warning'] = [dict(name='No cameras found', value='')]
+            else:
+                for idx, camera in enumerate(camera_data):
+                    name = 'Camera ' + str(idx+1)
+                    entries[name] = []
+                    entries[name].append(camera)
         return entries
 
 
