@@ -424,8 +424,8 @@ class RebootHandler(tornado.web.RequestHandler):
         self.redirect('/?reboot_applied=1')
 
     def reboot(self):
-
         call(["reboot", "now"])
+
 
 class Application(tornado.web.Application):
     MODE_KR = 1
