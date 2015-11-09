@@ -68,7 +68,7 @@ class CameraManager(object):
             _log.debug('devices: %s', devices)
             camera_data = []
             for devpath in devices:
-                dev, props = self._get_device(devpath)
+                _, props = self._get_device(devpath)
                 _log.debug('dev id: %s', props.Id)
                 _log.debug('device state: %d', props.State)
                 cam = dict(name=props.Id, value=props.State)
