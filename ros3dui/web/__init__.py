@@ -381,7 +381,8 @@ class MainHandler(tornado.web.RequestHandler):
 
         if self.app.mode == Application.MODE_KR:
             aladin = config.get_aladin()
-            system_entries.append(dict(name='Aladin Control Mode', value=SystemSettingsHandler.aladin_modes_get[aladin]))
+            system_entries.append(dict(name='Aladin Control Mode',
+                                       value=SystemSettingsHandler.aladin_modes_get[aladin]))
 
         system_entries.append(dict(name='Uptime', value=self._uptime()))
         network_entries = self._net()
