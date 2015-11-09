@@ -452,7 +452,7 @@ class Application(tornado.web.Application):
     MODE_KR = 1
     MODE_AO = 2
 
-    def __init__(self, document_root, mode = MODE_KR):
+    def __init__(self, document_root, mode=MODE_KR):
         self.mode = mode
         self.template_root = os.path.join(document_root,
                                           'templates')
