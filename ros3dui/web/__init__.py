@@ -403,7 +403,7 @@ class MainHandler(tornado.web.RequestHandler):
         try:
             camera_data = get_camera_manager().get_details()
         except CameraManagerError:
-            entries['Error']= [dict(name='controller service unavaialble',
+            entries['Error']= [dict(name='controller service unavailable',
                 value='')]
         else:
             for idx, camera in enumerate(camera_data):
