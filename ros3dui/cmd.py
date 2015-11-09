@@ -4,6 +4,7 @@
 from __future__ import absolute_import
 from ros3dui.web import Application
 from ros3dui.system.util import ConfigLoader
+from ros3dui.system.services import ServiceReloader
 from tornado.ioloop import IOLoop
 import logging
 import argparse
@@ -22,6 +23,8 @@ def parse_arguments():
     parser.add_argument('-c', '--config-path',
                         help='Configuration file path, ' \
                         'default: {}'.format(ConfigLoader.CONFIG_PATH),
+                        default=None)
+    parser.add_argument('--helpers-dir', help='Path to helper tools directory',
                         default=None)
     parser.add_argument('-i', '--ia', help="Set if running on Image Analyser", action="store_true")
     parser.add_argument('document_root', help='Document root')
@@ -45,9 +48,12 @@ def main():
 
     logging.debug('configuration at: %s', ConfigLoader.CONFIG_PATH)
 
+    if opts.helpers_dir:
+        ServiceReloader.set_helpers_dir(opts.helpers_dir)
+
     if opts.ia:
         logging.error('Image Analyzer mode')
-        app = Application(opts.document_root, mode = Application.MODE_AO)
+        app = Application(opts.document_root, mode=Application.MODE_AO)
     else:
         app = Application(opts.document_root)
 
