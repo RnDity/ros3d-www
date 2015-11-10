@@ -5,7 +5,7 @@
 from __future__ import absolute_import
 from ros3dui.system.network import network_provider
 from ros3dui.system.camera import get_camera_manager, CameraManagerError
-from ros3dui.system.util import ConfigLoader
+from ros3dui.system.util import ConfigLoader, get_hostname
 from ros3dui.system.services import ServiceReloader
 import tornado.web
 import tornado.template
@@ -390,7 +390,10 @@ class MainHandler(tornado.web.RequestHandler):
         if not rig:
             rig = 'None'
 
-        hostname = os.environ.get('HOSTNAME', 'ros3d')
+        hostname = get_hostname()
+        if not hostname:
+            hostname = 'ros3d'
+
         system_entries= [
             dict(name='Hostname', value=hostname),
             dict(name='Assigned Rig', value=rig)
