@@ -76,3 +76,18 @@ class ConfigLoader(object):
     def set_config_location(cls, path):
         cls.logger.debug('setting config path to %s', path)
         cls.CONFIG_PATH = path
+
+
+def get_hostname():
+    """Obtain hostname, returns None if hostname is not set"""
+
+    # try environment first
+    hostname = os.environ.get('HOSTNAME')
+
+    etc_hostname = '/etc/hostname'
+    # bad luck, try /etc/hostname
+    if not hostname and os.path.exists(etc_hostname):
+        with open(etc_hostname) as inf:
+            hostname = inf.read().strip()
+
+    return hostname
