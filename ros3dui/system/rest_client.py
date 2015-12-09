@@ -64,7 +64,54 @@ class DevControllerRestClient(httpclient.HTTPClient):
         return self._process_request(request, 'DELETE')
 
 
-def get_snapshots_list():
-    """Returns list of snapshots using REST client"""
-    client = DevControllerRestClient()
-    return client.get_snapshots_list()
+def convert_to_simple_value_format(internal_json):
+    """Converts internal json to simple value format.
+
+    Internal format:
+    {
+    "rating": {
+        "status": {
+            "read": true,
+            "write": true,
+            "status": "software"
+        },
+        "type": "unicode",
+        "value": ""
+    },
+    "parallax_near_mm": {
+        "status": {
+            "read": true,
+            "write": true,
+            "status": "software"
+        },
+        "type": "float",
+        "value": 0.0
+    },
+    "camera_right_hostname": {
+        "status": {
+            "read": true,
+            "write": true,
+            "status": "software"
+        },
+        "type": "unicode",
+        "value": "100.10.10.102"
+    }
+
+    Simple value format:
+    {
+        "parallax_near_mm": 0.0,
+        "camera_right_hostname": "100.10.10.102"
+    }
+    """
+    ijson = json.loads(internal_json)
+    out_json = {}
+
+    for key in ijson.keys():
+        value = ijson[key]['value']
+
+        if value == "":
+            continue
+
+        out_json[key] = value
+
+    return out_json

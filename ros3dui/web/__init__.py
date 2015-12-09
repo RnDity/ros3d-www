@@ -7,7 +7,7 @@ from ros3dui.system.network import network_provider
 from ros3dui.system.camera import get_camera_manager, CameraManagerError
 from ros3dui.system.util import ConfigLoader, get_hostname
 from ros3dui.system.services import ServiceReloader
-from ros3dui.system.rest_client import DevControllerRestClient
+from ros3dui.system.rest_client import DevControllerRestClient, convert_to_simple_value_format
 import tornado.web
 import tornado.template
 from tornado.escape import parse_qs_bytes
@@ -483,7 +483,7 @@ class SnapshotDownloadHandler(tornado.web.RequestHandler):
         rest = DevControllerRestClient()
         snapshot = rest.get_snapshot(snapshot_id)
 
-        self.write(snapshot)
+        self.write(convert_to_simple_value_format(snapshot))
 
 
 class Application(tornado.web.Application):
