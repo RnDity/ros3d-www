@@ -473,6 +473,21 @@ class SnapshotsHandler(tornado.web.RequestHandler):
         rest.delete_snapshots()
 
 
+class ShotcalcHandler(tornado.web.RequestHandler):
+    """Handler for main site of shot calculator"""
+
+    def initialize(self, app):
+        self.app = app
+
+    def get(self):
+        _log.debug("shotcalc request for main site")
+
+        ldr = self.app.get_template_loader()
+        tmpl = ldr.load('shotcalc.html')
+
+        self.write(tmpl.generate())
+
+
 class SnapshotDownloadHandler(tornado.web.RequestHandler):
     """Handler for parameter snapshots requests"""
 
@@ -496,6 +511,8 @@ class Application(tornado.web.Application):
         self.static_root = os.path.join(document_root,
                                         'static')
         fonts_root = os.path.join(document_root, 'fonts')
+
+        shotcalc_root = "/".join((document_root, 'shotcalc'))
         uris = [
             (r"/network_settings", NetworkSettingsHandler, dict(app=self)),
             (r"/system_settings", SystemSettingsHandler, dict(app=self)),
@@ -504,6 +521,9 @@ class Application(tornado.web.Application):
             (r"/fonts/(.*)", tornado.web.StaticFileHandler, dict(path=fonts_root)),
             (r"/snapshots", SnapshotsHandler, dict(app=self)),
             (r"/snapshot/([0-9]+)", SnapshotDownloadHandler),
+            (r"/shotcalc/", ShotcalcHandler, dict(app=self)),
+            (r"/shotcalc/(.*)?", tornado.web.StaticFileHandler,
+             dict(path=shotcalc_root)),
             (r"/", MainHandler, dict(app=self)),
         ]
 

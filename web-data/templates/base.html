@@ -1,7 +1,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>
         <meta charset="utf-8">
-        <title>Ros3D UI</title>
+        <title>Ros3D UI {% block title %}{% end %}</title>
         <link href="/static/bootstrap.css" rel="stylesheet">
         <link href="/static/theme.css" rel="stylesheet">
         <script src="/static/jquery.min.js"></script>
@@ -11,7 +11,7 @@
   </head>
   <body>
       <nav class="navbar navbar-default navbar-fixed-top">
-          <div class="container">
+          <div class="nav-container">
               <div class="navbar-header">
                   <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
                       <span class="sr-only">Toggle navigation</span>
@@ -50,6 +50,7 @@
                               <span class="caret"></span></a>
                           <ul class="dropdown-menu">
                               <li><a href="/snapshots">Snapshots</a></li>
+                              <li><a href="/shotcalc/">Shotcalc</a></li>
                           </ul>
                       </li>
                   </ul>
