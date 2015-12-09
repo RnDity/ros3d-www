@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block head %}
+
+<script>
+    $(document).ready(setup_ui);
+
+    function setup_ui(){
+        $("#btn_delete_all").bind("click", function(){
+            $.ajax({
+                url: '/snapshots',
+                type: 'DELETE',
+                success: function(){
+                    location.reload();
+                },
+                error: function(xhr, status, error){
+                    alert("Unable to delete: " + error);
+                }
+            });
+        });
+    }
+</script>
+
+{% end %}
+
+{% block body %}
+<div>
+    {% if len(snapshots) > 0 %}
+    <h4>Snapshots</h4>
+
+    <ul>
+        {% for snapshot in snapshots %}
+        <li><a href="/snapshot/{{ snapshot }}" download="snapshot-{{ snapshot }}.json">Snapshot #{{ snapshot }}</a></li>
+        {% end %}
+    </ul>
+    <input class="btn btn-danger" type="button" value="Delete all snapshots" id="btn_delete_all">
+    {% else %}
+    <h4>No snapshots available</h4>
+    {% end %}
+</div>
+
+{% end %}

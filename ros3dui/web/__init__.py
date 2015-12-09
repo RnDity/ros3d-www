@@ -7,6 +7,7 @@ from ros3dui.system.network import network_provider
 from ros3dui.system.camera import get_camera_manager, CameraManagerError
 from ros3dui.system.util import ConfigLoader, get_hostname
 from ros3dui.system.services import ServiceReloader
+from ros3dui.system.rest_client import DevControllerRestClient
 import tornado.web
 import tornado.template
 from tornado.escape import parse_qs_bytes
@@ -451,6 +452,40 @@ class RebootHandler(tornado.web.RequestHandler):
         call(["reboot", "now"])
 
 
+class SnapshotsHandler(tornado.web.RequestHandler):
+    """Handler for parameter snapshots requests"""
+
+    def initialize(self, app):
+        self.app = app
+
+    def get(self):
+        _log.debug("get snapshots request")
+
+        ldr = self.app.get_template_loader()
+        tmpl = ldr.load('snapshots.html')
+
+        rest = DevControllerRestClient()
+        snapshots = rest.get_snapshots_list()
+
+        self.write(tmpl.generate(snapshots=snapshots))
+
+    def delete(self):
+        rest = DevControllerRestClient()
+        rest.delete_snapshots()
+
+
+class SnapshotDownloadHandler(tornado.web.RequestHandler):
+    """Handler for parameter snapshots requests"""
+
+    def get(self, snapshot_id):
+        _log.debug("get snapshot request, id %s", snapshot_id)
+
+        rest = DevControllerRestClient()
+        snapshot = rest.get_snapshot(snapshot_id)
+
+        self.write(snapshot)
+
+
 class Application(tornado.web.Application):
     MODE_KR = 1
     MODE_AO = 2
@@ -468,6 +503,8 @@ class Application(tornado.web.Application):
             (r"/status", MainHandler, dict(app=self)),
             (r"/reboot", RebootHandler, dict(app=self)),
             (r"/fonts/(.*)", tornado.web.StaticFileHandler, dict(path=fonts_root)),
+            (r"/snapshots", SnapshotsHandler, dict(app=self)),
+            (r"/snapshot/([0-9]+)", SnapshotDownloadHandler),
             (r"/", MainHandler, dict(app=self)),
         ]
 

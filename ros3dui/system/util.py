@@ -12,6 +12,7 @@ class ConfigLoader(object):
     """Ros3D system configuration loader"""
 
     DEFAULT_PATH = '/etc/ros3d.conf'
+    DEFAULT_REST_URL = 'http://localhost:8090'
     CONFIG_PATH = DEFAULT_PATH
 
     logger = logging.getLogger(__name__)
@@ -59,6 +60,10 @@ class ConfigLoader(object):
         if not self.config.has_section('common'):
             self.config.add_section('common')
         self.config.set('common', 'aladin', value)
+
+    def get_rest_url(self):
+        """Get ROS3D dev controller REST API url"""
+        return self._get('rest', 'url', self.DEFAULT_REST_URL)
 
     def write(self):
         import tempfile
