@@ -466,7 +466,7 @@ class SnapshotsHandler(tornado.web.RequestHandler):
         rest = DevControllerRestClient()
         snapshots = rest.get_snapshots_list()
 
-        self.write(tmpl.generate(snapshots=snapshots))
+        self.write(tmpl.generate(snapshots=snapshots, parameters_active=True))
 
     def delete(self):
         rest = DevControllerRestClient()
@@ -485,7 +485,7 @@ class ShotcalcHandler(tornado.web.RequestHandler):
         ldr = self.app.get_template_loader()
         tmpl = ldr.load('shotcalc.html')
 
-        self.write(tmpl.generate())
+        self.write(tmpl.generate(parameters_active=True))
 
 
 class SnapshotDownloadHandler(tornado.web.RequestHandler):
