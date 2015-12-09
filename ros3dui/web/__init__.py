@@ -522,7 +522,7 @@ class Application(tornado.web.Application):
             (r"/snapshots", SnapshotsHandler, dict(app=self)),
             (r"/snapshot/([0-9]+)", SnapshotDownloadHandler),
             (r"/shotcalc/", ShotcalcHandler, dict(app=self)),
-            (r"/shotcalc/(.*)?", tornado.web.StaticFileHandler,
+            (r"/shotcalc/(.*)", tornado.web.StaticFileHandler,
              dict(path=shotcalc_root)),
             (r"/", MainHandler, dict(app=self)),
         ]
