@@ -39,9 +39,8 @@ def widget_render(ldr, widget):
 
 class SystemSettingsHandler(tornado.web.RequestHandler):
 
-    aladin_modes_get = {'CONTROL_READ':'Control read',
-            'CONTROL_PARTIAL':'Control partial',
-            'CONTROL_FULL':'Control full'}
+    aladin_modes_get = {'READ_ONLY':'Read only',
+                        'INTERACTIVE':'Interactive'}
     aladin_modes_post = {v: k for k, v in aladin_modes_get.items()}
 
     def initialize(self, app):
