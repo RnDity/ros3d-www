@@ -502,7 +502,10 @@ class ShotcalcHandler(tornado.web.RequestHandler):
         _log.debug("shotcalc request for main site")
 
         ldr = self.app.get_template_loader()
-        tmpl = ldr.load('shotcalc.html')
+        try:
+            tmpl = ldr.load('shotcalc.html')
+        except IOError:
+            tmpl = ldr.load('shotcalc-error.html')
 
         self.write(tmpl.generate(parameters_active=True))
 
